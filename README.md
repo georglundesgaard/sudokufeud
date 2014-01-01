@@ -1,8 +1,7 @@
 # SudokuFeud
 
-1 Sudoku-brett
-2 spillere
-
+* 1 Sudoku-brett
+* 2 spillere
 * ved start har begge spillere 7 "brikker" med verdien 1-9
 * spiller 1 plasserer 1 eller flere brikker på brettet og prøve spille dem
 * hvis brikkene er riktig plassert får han 1 poeng per brikke plassert
