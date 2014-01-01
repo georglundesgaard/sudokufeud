@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:hz="http://www.hazelcast.com/schema/spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd
+  http://www.hazelcast.com/schema/spring
+  http://www.hazelcast.com/schema/spring/hazelcast-spring-3.0.xsd">
+
+    <bean class="no.lundesgaard.sudokufeud.api.logging.LoggingConfig"/>
+
+    <context:component-scan base-package="no.lundesgaard.sudokufeud.api.resource"/>
+
+    <hz:hazelcast id="hazelcastInstance">
+        <hz:config>
+            <hz:properties>
+                <hz:property name="hazelcast.logging.type">slf4j</hz:property>
+            </hz:properties>
+
+            <hz:map name="profileMap">
+                <hz:entry-listeners>
+                    <hz:entry-listener class-name="no.lundesgaard.sudokufeud.repository.hazelcast.ProfileEntryListener"
+                                       include-value="true"/>
+                </hz:entry-listeners>
+            </hz:map>
+
+            <hz:map name="gameMap">
+                <hz:entry-listeners>
+                    <hz:entry-listener class-name="no.lundesgaard.sudokufeud.repository.hazelcast.GameEntryListener"
+                                       include-value="true"/>
+                </hz:entry-listeners>
+            </hz:map>
+        </hz:config>
+    </hz:hazelcast>
+
+    <hz:lock id="gameRepositoryLock" name="gameLock" instance-ref="hazelcastInstance"/>
+    <hz:map id="gameMap" name="gameMap" instance-ref="hazelcastInstance"/>
+    <hz:map id="profileIdgameMap" name="profileIdgameMap" instance-ref="hazelcastInstance"/>
+
+    <bean name="gameRepository" class="no.lundesgaard.sudokufeud.repository.hazelcast.HazelcastGameRepository">
+        <constructor-arg ref="gameRepositoryLock"/>
+        <constructor-arg ref="gameMap"/>
+        <constructor-arg ref="profileIdgameMap"/>
+    </bean>
+
+    <hz:lock id="profileRepositoryLock" name="profileLock" instance-ref="hazelcastInstance"/>
+    <hz:map id="profileMap" name="profileMap" instance-ref="hazelcastInstance"/>
+    <hz:map id="userIdprofileMap" name="userIdprofileMap" instance-ref="hazelcastInstance"/>
+
+    <bean name="profileRepository" class="no.lundesgaard.sudokufeud.repository.hazelcast.HazelcastProfileRepository">
+        <constructor-arg ref="profileRepositoryLock"/>
+        <constructor-arg ref="profileMap"/>
+        <constructor-arg ref="userIdprofileMap"/>
+    </bean>
+
+    <bean name="boardGenerator" class="no.lundesgaard.sudokufeud.engine.BoardGenerator"/>
+
+    <bean name="gameEngine" class="no.lundesgaard.sudokufeud.engine.GameEngine"/>
+
+    <bean name="gameService" class="no.lundesgaard.sudokufeud.service.standard.StandardGameService">
+        <constructor-arg ref="boardGenerator"/>
+        <constructor-arg ref="gameEngine"/>
+        <constructor-arg ref="gameRepository"/>
+    </bean>
+
+    <bean name="profileService" class="no.lundesgaard.sudokufeud.service.standard.StandardProfileService">
+        <constructor-arg ref="profileRepository"/>
+    </bean>
+
+</beans>
