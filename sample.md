@@ -26,12 +26,12 @@ Tilgjengelige brikker:
 	1 2 3 4 5 6 7 8
 	          6 7 8 9
 
-√ 1. Fordeler brikker til spillerne
+1. Fordeler brikker til spillerne
 
 	Spiller 1: 1 2 4 8 1 3 4
 	Spiller 2: 5 8 2 6 7 9 1
 
-√ 2. Tilgjengelige brikker etter at brikker er fordelt
+2. Tilgjengelige brikker etter at brikker er fordelt
 
 	    3 4 5 6 7 8 9
 	1     4     7
@@ -41,7 +41,7 @@ Tilgjengelige brikker:
 	1 2 3 4 5 6 7 8
 	          6 7 8 9
 
-√ 3. Spiller 1 plasserer brikker på brettet
+3. Spiller 1 plasserer brikker på brettet
 
  	Spiller 1: 	2 3 8
  	Poeng:		3
@@ -58,17 +58,17 @@ Tilgjengelige brikker:
 	0 0 0  0 9 0  0 0 0
 	4 3 0  0 2 0  0 5 1
 
-√ 4. Poeng og brikker igjen hos spillere
+4. Poeng og brikker igjen hos spillere
 
 	Spiller 1: 3	1 4 1 4
 	Spiller 2: 0	5 8 2 6 7 9 1
 
-√ 5. Spiller 1 får nye brikker
+5. Spiller 1 får nye brikker
 
 	Spiller 1: 3	1 4 1 4 [3 4 5]
 	Spiller 2: 0	5 8 2 6 7 9 1
 
-√ 6. Tilgjengelige brikker etter at nye brikker er fordelt
+6. Tilgjengelige brikker etter at nye brikker er fordelt
 
 	          6 7 8 9
 	1     4     7
@@ -78,7 +78,7 @@ Tilgjengelige brikker:
 	1 2 3 4 5 6 7 8
 	          6 7 8 9
 
-√ 7. Spiller 2 plasserer brikker på brettet
+7. Spiller 2 plasserer brikker på brettet
 
 	Spiller 2: 	5 6 7 2 1
 	Poeng:		5
@@ -96,17 +96,17 @@ Tilgjengelige brikker:
 	0 0 0  0 9 0  0 0 0
 	4 3 0  0 2 0  0 5 1
 
-√ 8. Poeng og brikker igjen hos spillere
+8. Poeng og brikker igjen hos spillere
 
 	Spiller 1: 3	1 4 1 4 3 4 5
 	Spiller 2: 10	8 9
 
-√ 9. Spiller 2 får nye brikker
+9. Spiller 2 får nye brikker
 
 	Spiller 1: 3	1 4 1 4 3 4 5
 	Spiller 2: 10	8 9 [6 7 8 9 1]
 
-√10. Tilgjengelige brikker etter at nye brikker er fordelt
+10. Tilgjengelige brikker etter at nye brikker er fordelt
 
 	      4     7
 	1 2       6   8
@@ -115,7 +115,7 @@ Tilgjengelige brikker:
 	1 2 3 4 5 6 7 8
 	          6 7 8 9
 
-√11. Spiller 1 plasserer brikker på brettet
+11. Spiller 1 plasserer brikker på brettet
 
 	Spiller 1:	1 3 4 4 4 5
 	Poeng:		6
@@ -132,23 +132,23 @@ Tilgjengelige brikker:
 	0 0 0  0 9 5  0 4 3		3@8 4@7 5@5
 	4 3 0  0 2 0  0 5 1
 
-√12. Poeng og brikker igjen hos spillere
+12. Poeng og brikker igjen hos spillere
 
 	Spiller 1: 9	1
 	Spiller 2: 10	8 9 6 7 8 9 1
 
-√13. Spiller 1 får nye brikker
+13. Spiller 1 får nye brikker
 
 	Spiller 1: 9	1 [4 7 1 2 6 8]
 	Spiller 2: 10	8 9 6 7 8 9 1
 
-√14. Tilgjengelige brikker etter at nye brikker er fordelt
+14. Tilgjengelige brikker etter at nye brikker er fordelt
 
 	    3 4   6 7
 	1 2 3 4 5 6 7 8
 	          6 7 8 9
 
-√15. Spiller 2 plasserer brikker på brettet
+15. Spiller 2 plasserer brikker på brettet
 
 	Spiller 2:	6 9 9 8 8 1 7
 	Poeng:		7+5+5+5+10
@@ -169,22 +169,22 @@ Tilgjengelige brikker:
 	0 0 0  0 9 5  0 4 3
 	4 3 0  0 2 0  0 5 1
 
-√16. Poeng og brikker igjen hos spillere
+16. Poeng og brikker igjen hos spillere
 
 	Spiller 1: 9	1 4 7 1 2 6 8
 	Spiller 2: 42
 
-√17. Spiller 2 får nye brikker
+17. Spiller 2 får nye brikker
 
 	Spiller 1: 9	1 4 7 1 2 6 8
 	Spiller 2: 42	[3 4 6 7 1 2 3]
 
-√18. Tilgjengelige brikker etter at nye brikker er fordelt
+18. Tilgjengelige brikker etter at nye brikker er fordelt
 
 	      4 5 6 7 8
 	          6 7 8 9
 
-√19. Spiller 1 plasserer brikker på brettet
+19. Spiller 1 plasserer brikker på brettet
 
 	Spiller 1:	2 4 6 1 7 8
 	Poeng:		6
@@ -206,21 +206,21 @@ Tilgjengelige brikker:
 	0 0 0  0 9 5  0 4 3
 	4 3 0  0 2 7  0 5 1 	7@5
 
-√20. Poeng og brikker igjen hos spillere
+20. Poeng og brikker igjen hos spillere
 
 	Spiller 1: 40	1
 	Spiller 2: 42	3 4 6 7 1 2 3
 
-√21. Spiller 1 får nye brikker
+21. Spiller 1 får nye brikker
 
 	Spiller 1: 40	1 [4 5 6 7 8 6]
 	Spiller 2: 42	3 4 6 7 1 2 3
 
-√22. Tilgjengelige brikker etter at nye brikker er fordelt
+22. Tilgjengelige brikker etter at nye brikker er fordelt
 
 	            7 8 9
 
-√23. Spiller 2 plasserer brikker på brettet
+23. Spiller 2 plasserer brikker på brettet
 
 	Spiller 2:	7 4 6 1 3 2 3
 	Poeng:		7
@@ -242,21 +242,21 @@ Tilgjengelige brikker:
 	2 6 0  0 9 5  0 4 3		6@1 2@0
 	4 3 0  0 2 7  0 5 1
 
-√24. Poeng og brikker igjen hos spillere
+24. Poeng og brikker igjen hos spillere
 
 	Spiller 1: 40	1 4 5 6 7 8 6
 	Spiller 2: 79
 
-√25. Spiller 2 får nye brikker
+25. Spiller 2 får nye brikker
 
 	Spiller 1: 40	1 4 5 6 7 8 6
 	Spiller 2: 79	[7 8 9]
 
-√26. Tilgjengelige brikker etter at nye brikker er fordelt
+26. Tilgjengelige brikker etter at nye brikker er fordelt
 
 	Ingen
 
-√27. Spiller 1 plasserer brikker på brettet
+27. Spiller 1 plasserer brikker på brettet
 
 	Spiller 1:	4 5 1 7 8
 	Poeng:		5
@@ -280,21 +280,21 @@ Tilgjengelige brikker:
 	2 6 1  0 9 5  0 4 3		1@2
 	4 3 8  0 2 7  0 5 1 	8@2
 
-√28. Poeng og brikker igjen hos spillere
+28. Poeng og brikker igjen hos spillere
 
 	Spiller 1: 80	6 6
 	Spiller 2: 79	7 8 9
 
-√29. Ingen nye brikker tilgjengelig for spiller 1
+29. Ingen nye brikker tilgjengelig for spiller 1
 
 	Spiller 1: 80	6 6
 	Spiller 2: 79	7 8 9
 
-√30. Tilgjengelige brikker etter at ingen nye brikker er fordelt
+30. Tilgjengelige brikker etter at ingen nye brikker er fordelt
 
 	Ingen
 
-√31. Spiller 2 plasserer brikker på brettet
+31. Spiller 2 plasserer brikker på brettet
 
 	Spiller 2:	7 8 9
 	Poeng:		3
@@ -313,21 +313,21 @@ Tilgjengelige brikker:
 	2 6 1  8 9 5  7 4 3 	7@6 8@3
 	4 3 8  0 2 7  9 5 1 	9@6
 
-√32. Poeng og brikker igjen hos spillere
+32. Poeng og brikker igjen hos spillere
 
 	Spiller 1: 80	6 6
 	Spiller 2: 97
 
-√33. Ingen nye brikker tilgjengelig for spiller 2
+33. Ingen nye brikker tilgjengelig for spiller 2
 
 	Spiller 1: 80	6 6
 	Spiller 2: 97
 
-√34. Tilgjengelige brikker etter at ingen nye brikker er fordelt
+34. Tilgjengelige brikker etter at ingen nye brikker er fordelt
 
 	Ingen
 
-√35. Spiller 1 plasserer brikker på brettet
+35. Spiller 1 plasserer brikker på brettet
 
 	Spiller 1: 	6 6
 	Poeng:		2
@@ -351,11 +351,11 @@ Tilgjengelige brikker:
 	2 6 1  8 9 5  7 4 3
 	4 3 8  6 2 7  9 5 1 	6@3
 
-√36. Poeng og brikker igjen hos spillere
+36. Poeng og brikker igjen hos spillere
 
 	Spiller 1: 122
 	Spiller 2: 97
 
-√37. Vinner funnet
+37. Vinner funnet
 
 	Spiller 1
