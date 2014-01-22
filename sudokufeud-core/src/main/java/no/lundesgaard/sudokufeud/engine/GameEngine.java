@@ -86,7 +86,7 @@ public class GameEngine {
                 playerPieceList.add(piece);
             }
         }
-
+		int n = 0;
         for (Move move : movesInRound) {
             int piece = move.getPiece();
             if (piece <= 0 || piece >= 10) {
@@ -96,7 +96,11 @@ public class GameEngine {
                 throw new GameEngineException("unavailable piece: " + piece);
             }
             board = board.placePiece(move.getX(), move.getY(), piece);
-            playerPieceList.remove(piece);
+			final int index = playerPieceList.indexOf(piece);
+			if (index > -1)
+				playerPieceList.remove(index);
+			else
+				throw new GameEngineException("unavailable piece: " + piece); // skal være umulig å komme hit
         }
 
         Board.Statistics statisticsAfter = board.getStatistics();
