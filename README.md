@@ -1,5 +1,7 @@
 # SudokuFeud
 
+Sudoku for 2 spillere konseptuelt likt Wordfeud.
+
 ## Konsept
 
 * 1 Sudoku-brett
@@ -31,3 +33,4 @@ Rot: http://sudokufeud.lundesgaard.no/api
 | PUT    | games/{gameId}        | Aksepter/avslå invitasjon til spill |
 | POST   | games/{gameId}/rounds | Spill runde                         |
 | GET    | games/{gameId}/rounds | Hent spilte runder                  |
+
