@@ -1,5 +1,7 @@
 package no.lundesgaard.sudokufeud.service.standard;
 
+import java.util.List;
+
 import no.lundesgaard.sudokufeud.engine.BoardGenerator;
 import no.lundesgaard.sudokufeud.engine.GameEngine;
 import no.lundesgaard.sudokufeud.model.Board;
@@ -8,8 +10,6 @@ import no.lundesgaard.sudokufeud.model.Move;
 import no.lundesgaard.sudokufeud.repository.GameRepository;
 import no.lundesgaard.sudokufeud.service.GameService;
 import no.lundesgaard.sudokufeud.service.IllegalGameStateException;
-
-import java.util.List;
 
 public class StandardGameService implements GameService {
 

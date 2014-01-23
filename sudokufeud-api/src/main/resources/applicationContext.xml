@@ -56,7 +56,7 @@
         <constructor-arg ref="userIdprofileMap"/>
     </bean>
 
-    <bean name="boardGenerator" class="no.lundesgaard.sudokufeud.engine.BoardGenerator"/>
+    <bean name="boardGenerator" class="no.lundesgaard.sudokufeud.engine.SimpleBoardGenerator"/>
 
     <bean name="gameEngine" class="no.lundesgaard.sudokufeud.engine.GameEngine"/>
 
