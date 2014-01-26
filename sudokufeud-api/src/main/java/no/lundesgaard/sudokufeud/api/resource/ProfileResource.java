@@ -1,22 +1,8 @@
 package no.lundesgaard.sudokufeud.api.resource;
 
-import no.lundesgaard.sudokufeud.api.model.JsonProfile;
-import no.lundesgaard.sudokufeud.model.Profile;
-import no.lundesgaard.sudokufeud.service.ProfileService;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.UUID;
-
-@Path(ProfileResource.PATH)
-@Component
-public class ProfileResource {
+//@Path(ProfileResource.PATH)
+//@Component
+public class ProfileResource {/*
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileResource.class);
 
     public static final String PATH = "profile";
@@ -85,4 +71,4 @@ public class ProfileResource {
                 DateTime.now(),
                 null);
     }
-}
+*/}

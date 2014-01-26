@@ -1,116 +1,109 @@
-package no.lundesgaard.sudokufeud.api.resource;
+package no.lundesgaard.sudokufeud.api.controller;
 
-//@Path(GamesResource.PATH)
-//@Component
-public class GamesResource {/*
-//    private static final Logger LOGGER = LoggerFactory.getLogger(GamesResource.class);
+import static java.util.Arrays.asList;
+import static no.lundesgaard.sudokufeud.api.controller.ProfileController.PROFILE_ID;
 
-    public static final String PATH = "games";
+import java.util.List;
+
+import no.lundesgaard.sudokufeud.api.SudokuFeudApiConfiguration;
+import no.lundesgaard.sudokufeud.api.model.JsonGame;
+import no.lundesgaard.sudokufeud.api.model.JsonGameInvitation;
+import no.lundesgaard.sudokufeud.api.model.JsonMove;
+import no.lundesgaard.sudokufeud.api.model.JsonNewGame;
+import no.lundesgaard.sudokufeud.api.model.JsonRound;
+import no.lundesgaard.sudokufeud.model.Board;
+import no.lundesgaard.sudokufeud.model.Game;
+import no.lundesgaard.sudokufeud.model.Move;
+import no.lundesgaard.sudokufeud.model.Player;
+import no.lundesgaard.sudokufeud.service.GameService;
+import no.lundesgaard.sudokufeud.service.ProfileService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping(GameController.GAMES_PATH)
+public class GameController {
+    
+    public static final String GAMES_PATH = SudokuFeudApiConfiguration.ROOT_PATH + "/games";
     public static final String GAME_ID = "gameId";
     public static final String GAME_PATH = "{" + GAME_ID + "}";
-    public static final String ROUNDS_PATH = GAME_PATH + "/" + RoundsResource.PATH;
-
+    public static final String ROUNDS_PATH = GAME_PATH + "/rounds";
+    
     @Autowired
     private GameService gameService;
 
     @Autowired
     private ProfileService profileService;
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getGames(@HeaderParam(PROFILE_ID) String profileId) {
+    
+    @RequestMapping(method = RequestMethod.GET)
+    public @ResponseBody List<JsonGame> getGames(@RequestHeader(PROFILE_ID) String profileId) {
         List<Game> games = gameService.getGames(profileId);
-
-        DateTime lastModified = null;
-        for (Game game : games) {
-            if (lastModified == null || lastModified.isBefore(game.getLastModified())) {
-                lastModified = game.getLastModified();
-            }
-        }
-
-        Response.ResponseBuilder responseBuilder = Response.ok(toJsonGames(games, profileId));
-        if (lastModified != null) {
-            return responseBuilder
-                    .lastModified(lastModified.toDate())
-                    .build();
-        }
-        return responseBuilder.build();
+        return toJsonGames(games, profileId);
     }
-
-    @GET
-    @Path(GAME_PATH)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getGame(
-            @HeaderParam(PROFILE_ID) String profileId,
-            @PathParam(GAME_ID) String gameId)
-    {
+    
+    @RequestMapping(value = GAME_PATH, method = RequestMethod.GET)
+    public @ResponseBody JsonGame getGame(@RequestHeader(ProfileController.PROFILE_ID) String profileId, @PathVariable(GAME_ID) String gameId) {
         Game game = gameService.getGame(profileId, gameId);
-
-        return Response
-                .ok(toJsonGame(game, profileId))
-                .lastModified(game.getLastModified().toDate())
-                .build();
+        return toJsonGame(game, profileId);
     }
 
-    @PUT
-    @Path(GAME_PATH)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response acceptDeclineInvitation(
-            @HeaderParam(PROFILE_ID) String profileId,
-            @PathParam(GAME_ID) String gameId,
-            JsonGameInvitation jsonGameInvitation)
+    @RequestMapping(value = GAME_PATH, method = RequestMethod.PUT)
+    public JsonGame acceptDeclineInvitation(
+            @RequestHeader(PROFILE_ID) String profileId,
+            @PathVariable(GAME_ID) String gameId,
+            @RequestBody JsonGameInvitation jsonGameInvitation)
     {
         if (jsonGameInvitation.getResponse() == JsonGameInvitation.Response.ACCEPT) {
             Game game = gameService.acceptInvitation(profileId, gameId);
 
-            return Response
-                    .ok(toJsonGame(game, profileId))
-                    .lastModified(game.getLastModified().toDate())
-                    .build();
+            return toJsonGame(game, profileId);
         } else {
             gameService.declineInvitation(profileId, gameId);
 
-            return Response
-                    .ok()
-                    .build();
+            return null;
         }
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response createGame(
-            @HeaderParam(PROFILE_ID) String profileId,
-            @Context UriInfo uriInfo,
-            JsonNewGame jsonNewGame)
+    @RequestMapping(method = RequestMethod.POST)
+    public void createGame(
+            @RequestHeader(PROFILE_ID) String profileId,
+            @RequestBody JsonNewGame jsonNewGame)
     {
         Board.Difficulty difficulty = Board.Difficulty.valueOf(jsonNewGame.getDifficulty());
         String opponentUserId = jsonNewGame.getOpponent();
 
         String opponentId = profileService.getProfileIdByUserId(opponentUserId);
-        String gameId = gameService.createGame(profileId, opponentId, difficulty);
-
-        URI location = getLocation(uriInfo, gameId);
-        return Response
-                .created(location)
-                .build();
-
+        gameService.createGame(profileId, opponentId, difficulty);
     }
 
-    @Path(ROUNDS_PATH)
-    public RoundsResource getRoundsResource(
-            @HeaderParam(PROFILE_ID) String profileId,
-            @PathParam(GAME_ID) String gameId)
-    {
-        return new RoundsResource(gameService, profileId, gameId);
+    @RequestMapping(value = ROUNDS_PATH, method = RequestMethod.POST)
+    public void executeRound(
+            @RequestHeader(PROFILE_ID) String profileId,
+            @PathVariable(GAME_ID) String gameId,
+            @RequestBody JsonRound jsonRound) {
+        
+        Move[] moves = toMoves(jsonRound);
+        gameService.executeRound(profileId, gameId, moves);
     }
 
-    private JsonGame[] toJsonGames(List<Game> games, String profileId) {
+    @RequestMapping(value = ROUNDS_PATH, method = RequestMethod.GET)
+    public List<JsonRound> getRounds() {
+        return asList();
+    }
+
+    private List<JsonGame> toJsonGames(List<Game> games, String profileId) {
         JsonGame[] jsonGames = new JsonGame[games.size()];
         for (int i = 0; i < games.size(); i++) {
             jsonGames[i] = toJsonGame(games.get(i), profileId);
         }
-        return jsonGames;
+        return asList(jsonGames);
     }
 
     private JsonGame toJsonGame(Game game, String profileId) {
@@ -176,8 +169,8 @@ public class GamesResource {/*
             Game.State gameState,
             boolean creator,
             boolean currentPlayer,
-            Boolean won)
-    {
+            Boolean won) {
+        
         switch (gameState) {
             case NEW:
                 if (creator) {
@@ -211,13 +204,21 @@ public class GamesResource {/*
         }
     }
 
-    private URI getLocation(UriInfo uriInfo, String gameId) {
-        try {
-            return new URI(uriInfo.getAbsolutePath() + "/" + gameId);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Failed to create location uri", e);
+    private Move[] toMoves(JsonRound jsonRound) {
+        JsonMove[] jsonMoves = jsonRound.getMoves();
+        if (jsonMoves == null || jsonMoves.length == 0) {
+            return new Move[0];
         }
+
+        Move[] moves = new Move[jsonMoves.length];
+        for (int i = 0; i < jsonMoves.length; i++) {
+            moves[i] = toMove(jsonMoves[i]);
+        }
+
+        return moves;
     }
 
-
-*/}
+    private Move toMove(JsonMove jsonMove) {
+        return new Move(jsonMove.getX(), jsonMove.getY(), jsonMove.getPiece());
+    }
+}

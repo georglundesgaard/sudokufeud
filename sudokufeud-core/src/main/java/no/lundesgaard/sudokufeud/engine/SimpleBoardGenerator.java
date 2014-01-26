@@ -2,6 +2,9 @@ package no.lundesgaard.sudokufeud.engine;
 
 import no.lundesgaard.sudokufeud.model.Board;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class SimpleBoardGenerator implements BoardGenerator {
     @Override
     public Board generateBoard(Board.Difficulty difficulty) {

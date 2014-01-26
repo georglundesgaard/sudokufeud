@@ -1,13 +1,14 @@
 package no.lundesgaard.sudokufeud.model;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.joda.time.DateTime;
+import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
 
 import java.io.Serializable;
 
-import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.joda.time.DateTime;
 
 public class Round implements Serializable {
     private static final long serialVersionUID = -9161769701283945758L;
@@ -59,7 +60,7 @@ public class Round implements Serializable {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append("player", player)
                 .append("moves", moves)
                 .append("timestamp", timestamp)

@@ -1,21 +1,6 @@
 package no.lundesgaard.sudokufeud.api.resource;
 
-import no.lundesgaard.sudokufeud.api.model.JsonMove;
-import no.lundesgaard.sudokufeud.api.model.JsonRound;
-import no.lundesgaard.sudokufeud.model.Move;
-import no.lundesgaard.sudokufeud.service.GameService;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-
-public class RoundsResource {
+public class RoundsResource {/*
     public static final String PATH = "rounds";
 
     private GameService gameService;
@@ -68,4 +53,4 @@ public class RoundsResource {
                 .ok()
                 .build();
     }
-}
+*/}

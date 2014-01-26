@@ -1,11 +1,11 @@
 package no.lundesgaard.sudokufeud.model;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Board implements Serializable {
     private static final long serialVersionUID = 5882709926255690461L;

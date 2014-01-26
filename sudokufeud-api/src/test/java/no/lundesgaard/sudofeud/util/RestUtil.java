@@ -1,17 +1,6 @@
 package no.lundesgaard.sudofeud.util;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.LoggingFilter;
-import com.sun.jersey.api.json.JSONConfiguration;
-import no.lundesgaard.sudokufeud.api.model.*;
-import no.lundesgaard.sudokufeud.api.provider.ObjectMapperProvider;
-
-import javax.ws.rs.core.MediaType;
-
-public class RestUtil {
+public class RestUtil {/*
     private static final String ROOT = "http://localhost:8080/api";
     private static final String GAMES = "games";
     private static final String PROFILE = "profile";
@@ -235,4 +224,4 @@ public class RestUtil {
                 .entity(jsonProfile, MediaType.APPLICATION_JSON_TYPE)
                 .put();
     }
-}
+*/}

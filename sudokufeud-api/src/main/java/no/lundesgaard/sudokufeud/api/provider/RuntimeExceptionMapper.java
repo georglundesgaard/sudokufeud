@@ -1,18 +1,7 @@
 package no.lundesgaard.sudokufeud.api.provider;
 
-import no.lundesgaard.sudokufeud.api.model.JsonError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
-import java.util.Formatter;
-import java.util.UUID;
-
-@Provider
-public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException> {
+//@Provider
+public class RuntimeExceptionMapper /*implements ExceptionMapper<RuntimeException>*/ {/*
     private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeExceptionMapper.class);
 
     @Override
@@ -28,4 +17,4 @@ public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException>
                 .entity(jsonError)
                 .build();
     }
-}
+*/}

@@ -1,11 +1,6 @@
 package no.lundesgaard.sudokufeud.api.model;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
-public class JsonProfile {
+public class JsonProfile {/*
     private String userId;
     private String name;
 
@@ -53,4 +48,4 @@ public class JsonProfile {
                 .append("name", name)
                 .toString();
     }
-}
+*/}

@@ -1,13 +1,13 @@
 package no.lundesgaard.sudokufeud.model;
 
+import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
+
+import java.io.Serializable;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
-import java.io.Serializable;
-
-import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
 
 public class Player implements Serializable {
     private static final long serialVersionUID = -4551882781278736324L;

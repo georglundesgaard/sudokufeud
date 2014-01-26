@@ -1,12 +1,19 @@
 package no.lundesgaard.sudokufeud.engine;
 
-import no.lundesgaard.sudokufeud.model.*;
-import org.joda.time.DateTime;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import no.lundesgaard.sudokufeud.model.Board;
+import no.lundesgaard.sudokufeud.model.Game;
+import no.lundesgaard.sudokufeud.model.Move;
+import no.lundesgaard.sudokufeud.model.Player;
+import no.lundesgaard.sudokufeud.model.Round;
+
+import org.joda.time.DateTime;
+import org.springframework.stereotype.Service;
+
+@Service
 public class GameEngine {
 
     public Game startGame(Game game, String startingPlayerId) {

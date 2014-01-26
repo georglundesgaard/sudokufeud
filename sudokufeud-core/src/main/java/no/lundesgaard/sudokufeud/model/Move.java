@@ -1,11 +1,11 @@
 package no.lundesgaard.sudokufeud.model;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
-import java.io.Serializable;
 
 public class Move implements Serializable {
     private static final long serialVersionUID = -1070998890759246050L;

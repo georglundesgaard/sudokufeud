@@ -1,15 +1,16 @@
 package no.lundesgaard.sudokufeud.repository.hazelcast;
 
-import no.lundesgaard.sudokufeud.repository.hazelcast.exception.SuspectedDeadlockException;
-import no.lundesgaard.sudokufeud.repository.hazelcast.exception.UnableToAquireLockException;
-import org.slf4j.Logger;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+
+import no.lundesgaard.sudokufeud.repository.hazelcast.exception.SuspectedDeadlockException;
+import no.lundesgaard.sudokufeud.repository.hazelcast.exception.UnableToAquireLockException;
+
+import org.slf4j.Logger;
 
 public class LockedMap<K, V> implements AutoCloseable, Map<K, V> {
     private final Logger logger;

@@ -1,17 +1,7 @@
 package no.lundesgaard.sudokufeud.api.provider;
 
-import no.lundesgaard.sudokufeud.api.model.JsonError;
-import no.lundesgaard.sudokufeud.repository.exception.UnknownUserIdException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
-
-@Provider
-public class UnknownUserIdExceptionMapper implements ExceptionMapper<UnknownUserIdException> {
+//@Provider
+public class UnknownUserIdExceptionMapper /*implements ExceptionMapper<UnknownUserIdException>*/ {/*
     private static final Logger LOGGER = LoggerFactory.getLogger(UnknownUserIdExceptionMapper.class);
 
     @Override
@@ -26,4 +16,4 @@ public class UnknownUserIdExceptionMapper implements ExceptionMapper<UnknownUser
                 .entity(jsonError)
                 .build();
     }
-}
+*/}
