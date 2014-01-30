@@ -1,8 +1,8 @@
 package no.lundesgaard.sudokufeud.repository;
 
-import no.lundesgaard.sudokufeud.model.Game;
-
 import java.util.List;
+
+import no.lundesgaard.sudokufeud.model.Game;
 
 public interface GameRepository extends Repository<Game> {
     List<Game> findAllByPlayerId(String playerId);

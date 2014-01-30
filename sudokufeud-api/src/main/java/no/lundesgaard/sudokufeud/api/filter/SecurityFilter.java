@@ -1,17 +1,6 @@
 package no.lundesgaard.sudokufeud.api.filter;
 
-import com.sun.jersey.api.core.InjectParam;
-import com.sun.jersey.spi.container.ContainerRequest;
-import com.sun.jersey.spi.container.ContainerRequestFilter;
-import no.lundesgaard.sudokufeud.api.resource.ProfileResource;
-import no.lundesgaard.sudokufeud.repository.exception.UnknownUserIdException;
-import no.lundesgaard.sudokufeud.service.ProfileService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-
-public class SecurityFilter implements ContainerRequestFilter {
+public class SecurityFilter /*implements ContainerRequestFilter*/ {/*
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityFilter.class);
 
     @InjectParam
@@ -39,4 +28,4 @@ public class SecurityFilter implements ContainerRequestFilter {
 
         return request;
     }
-}
+*/}

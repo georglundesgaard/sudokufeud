@@ -1,20 +1,6 @@
 package no.lundesgaard.sudokufeud.api.filter;
 
-import com.sun.jersey.api.core.InjectParam;
-import com.sun.jersey.spi.container.ContainerRequest;
-import com.sun.jersey.spi.container.ContainerRequestFilter;
-import com.sun.jersey.spi.container.ContainerResponse;
-import com.sun.jersey.spi.container.ContainerResponseFilter;
-import no.lundesgaard.sudokufeud.api.resource.ProfileResource;
-import no.lundesgaard.sudokufeud.service.ProfileService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StopWatch;
-
-import java.util.Formatter;
-import java.util.List;
-
-public class LoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
+public class LoggingFilter /*implements ContainerRequestFilter, ContainerResponseFilter*/ {/*
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingFilter.class);
 
     private static final String STOP_WATCH = "stopWatch";
@@ -59,4 +45,4 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         }
         return new Formatter().format("[method: %s; path: %s; user: %s]", method, path, user).toString();
     }
-}
+*/}

@@ -1,13 +1,18 @@
 package no.lundesgaard.sudokufeud.engine;
 
-import no.lundesgaard.sudokufeud.model.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+
+import no.lundesgaard.sudokufeud.model.Board;
+import no.lundesgaard.sudokufeud.model.BoardException;
+import no.lundesgaard.sudokufeud.model.Game;
+import no.lundesgaard.sudokufeud.model.Move;
+import no.lundesgaard.sudokufeud.model.Player;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GameEngineTest {

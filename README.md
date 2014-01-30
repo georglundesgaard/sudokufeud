@@ -34,3 +34,19 @@ Rot: http://sudokufeud.lundesgaard.no/api
 | POST   | games/{gameId}/rounds | Spill runde                         |
 | GET    | games/{gameId}/rounds | Hent spilte runder                  |
 
+# Sikkerhet
+
+API-et krever Basic Authentication. Brukeren opprettes med passordet som sendes inn 
+hvis den ikke finnes fra før.
+
+# Runtime-oppsett
+
+Applikasjonen er satt opp med [Spring Boot](http://projects.spring.io/spring-boot/). Spring Boot inkluderer et Emedded Tomcat-kjøremiljø 
+som standard. Den er satt opp med [spring-boot-actuator](https://github.com/spring-projects/spring-boot/tree/master/spring-boot-actuator) 
+som setter opp en rekke standard-tjenster i tillegg til API ovenfor.
+
+Kjøres med (fra prosjekt-roten)
+
+    java -jar sudokufeud-api/target/sudokufeud-api-1.0-SNAPSHOT.jar
+    
+Alternativt kan main-klassen [SudokuFeudApiConfiguration](sudokufeud-api/src/main/java/no/lundesgaard/sudokufeud/api/SudokuFeudApiConfiguration.java) kjøres.

@@ -1,39 +1,62 @@
 package no.lundesgaard.sudofeud.util;
 
+import javax.ws.rs.core.MediaType;
+
+import no.lundesgaard.sudokufeud.api.client.SudokuFeudClient;
+import no.lundesgaard.sudokufeud.api.model.JsonGame;
+import no.lundesgaard.sudokufeud.api.model.JsonGameInvitation;
+import no.lundesgaard.sudokufeud.api.model.JsonMove;
+import no.lundesgaard.sudokufeud.api.model.JsonNewGame;
+import no.lundesgaard.sudokufeud.api.model.JsonProfile;
+import no.lundesgaard.sudokufeud.api.model.JsonRound;
+import no.lundesgaard.sudokufeud.api.model.JsonUpdatedProfile;
+import no.lundesgaard.sudokufeud.api.provider.ObjectMapperProvider;
+
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
-import no.lundesgaard.sudokufeud.api.model.*;
-import no.lundesgaard.sudokufeud.api.provider.ObjectMapperProvider;
-
-import javax.ws.rs.core.MediaType;
 
 public class RestUtil {
     private static final String ROOT = "http://localhost:8080/api";
     private static final String GAMES = "games";
     private static final String PROFILE = "profile";
     private static final String ROUNDS = "rounds";
-    public static final String HEADER_USER_ID = "User-Id";
+    private static final boolean LOGGING = false;
 
     public static void main(String[] args) {
-        ClientConfig config = new DefaultClientConfig(ObjectMapperProvider.class);
-        config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
-        Client client = Client.create(config);
-        client.addFilter(new LoggingFilter(System.out));
+//        ClientConfig config = new DefaultClientConfig(ObjectMapperProvider.class);
+//        config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
+//        Client client1 = Client.create(config);
+//        client1.addFilter(new LoggingFilter(System.out));
+//
+//        WebResource rootResource = client1.resource(ROOT);
 
-        WebResource rootResource = client.resource(ROOT);
-
+        SudokuFeudClient client1 = new SudokuFeudClient("georg", "georg", LOGGING);
+        SudokuFeudClient client2 = new SudokuFeudClient("ida", "ida", LOGGING);
+        
         try {
-//        createProfile(rootResource, "georg", "Georg Lundesgaard");
+//            print(client1.getProfile());
+//            print(client2.getProfile());
+            
+//            print(client1.updateProfile("Georg Lundesgaard"));
+//            client1.createGame("ida");
+            print(client1.getGames());
+            print(client2.getGames());
+            
+//            print(client2.updateProfile("Ida Sirnes"));
+
+//            createProfile(rootResource, "georg", "Georg Lundesgaard");
 //        createProfile(rootResource, "ida", "Ida Sirnes");
+            
+//            printProfile(rootResource, "georg");
 
 //        createGame(rootResource, "georg", "ida");
 //        createGame(rootResource, "ida", "georg");
 
-            printGames(rootResource, "georg");
+//            printGames(rootResource, "georg");
 //        printGames(rootResource, "ida");
 
 //        JsonGame[] games = getGames(rootResource, "ida");
@@ -61,6 +84,18 @@ public class RestUtil {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private static void print(Object json) {
+        System.out.println(json);
+    }
+
+    private static void print(Object[] json) {
+        System.out.println("[");
+		for (Object o : json) {
+            System.out.println("  " + o);	
+		}
+        System.out.println("]");
     }
 
     private static void sampleGame(WebResource rootResource, String gameId, String playerUserId1, String playerUserId2) {
@@ -171,7 +206,6 @@ public class RestUtil {
                 .path(GAMES)
                 .path(gameId)
                 .path(ROUNDS)
-                .header(HEADER_USER_ID, userId)
                 .entity(jsonRound, MediaType.APPLICATION_JSON_TYPE)
                 .post();
     }
@@ -195,7 +229,6 @@ public class RestUtil {
         rootResource
                 .path(GAMES)
                 .path(gameId)
-                .header(HEADER_USER_ID, userId)
                 .entity(jsonGameInvitation, MediaType.APPLICATION_JSON)
                 .put();
     }
@@ -210,7 +243,6 @@ public class RestUtil {
     private static JsonGame[] getGames(WebResource rootResource, String userId) {
         return rootResource
                 .path(GAMES)
-                .header(HEADER_USER_ID, userId)
                 .get(JsonGame[].class);
     }
 
@@ -220,19 +252,23 @@ public class RestUtil {
         jsonNewGame.setDifficulty("EASY");
         rootResource
                 .path(GAMES)
-                .header(HEADER_USER_ID, userId)
                 .entity(jsonNewGame, MediaType.APPLICATION_JSON_TYPE)
                 .post();
     }
 
     private static void createProfile(WebResource rootResource, String userId, String name) {
-        JsonProfile jsonProfile = new JsonProfile();
-        jsonProfile.setUserId(userId);
-        jsonProfile.setName(name);
+        JsonUpdatedProfile jsonUpdatedProfile = new JsonUpdatedProfile();
+        jsonUpdatedProfile.setName(name);
         rootResource
                 .path(PROFILE)
-                .header(HEADER_USER_ID, userId)
-                .entity(jsonProfile, MediaType.APPLICATION_JSON_TYPE)
+                .entity(jsonUpdatedProfile, MediaType.APPLICATION_JSON_TYPE)
                 .put();
+    }
+
+    private static void printProfile(WebResource rootResource, String userId) {
+        JsonProfile jsonProfile = rootResource
+                .path(PROFILE)
+                .get(JsonProfile.class);
+        print(jsonProfile);
     }
 }

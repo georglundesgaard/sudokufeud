@@ -1,15 +1,21 @@
 package no.lundesgaard.sudokufeud.model;
 
+import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
+
+import java.util.UUID;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
 
-import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
-
 public class Game implements Identifiable {
     private static final long serialVersionUID = -3979593399708874988L;
+    
+    public static String generateId() {
+        return UUID.randomUUID().toString();
+    }
 
     private final String id;
     private final Player player1;

@@ -11,17 +11,20 @@ import no.lundesgaard.sudokufeud.repository.GameRepository;
 import no.lundesgaard.sudokufeud.service.GameService;
 import no.lundesgaard.sudokufeud.service.IllegalGameStateException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
 public class StandardGameService implements GameService {
 
-    private final BoardGenerator boardGenerator;
-    private final GameEngine gameEngine;
-    private final GameRepository gameRepository;
-
-    public StandardGameService(BoardGenerator boardGenerator, GameEngine gameEngine, GameRepository gameRepository) {
-        this.boardGenerator = boardGenerator;
-        this.gameEngine = gameEngine;
-        this.gameRepository = gameRepository;
-    }
+    @Autowired
+    private BoardGenerator boardGenerator;
+    
+    @Autowired
+    private GameEngine gameEngine;
+    
+    @Autowired
+    private GameRepository gameRepository;
 
     @Override
     public String createGame(String playerId1, String playerId2, Board.Difficulty difficulty) {

@@ -1,5 +1,7 @@
 package no.lundesgaard.sudokufeud.model;
 
+import java.util.UUID;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -8,24 +10,45 @@ import org.joda.time.DateTime;
 
 public class Profile implements Identifiable {
     private static final long serialVersionUID = -3134336451049287093L;
+    
+    public static String generateId() {
+        return UUID.randomUUID().toString();
+    }
 
     private final String id;
     private final String userId;
+    private final String password;
     private final String name;
     private final DateTime created;
     private final DateTime modified;
 
-    public Profile(
-            String id,
-            String userId,
-            String name,
-            DateTime created,
-            DateTime modified) {
-        this.id = id;
-        this.userId = userId;
+    public Profile(Profile profile, String userId, String password, String name) {
+        this.id = profile.id;
+        
+        if (userId != null && userId.trim().length() > 0) {
+            this.userId = userId;   
+        } else {
+            this.userId = profile.userId;
+        }
+        
+        if (password != null && password.trim().length() > 0) {
+            this.password = password;
+        } else {
+            this.password = profile.password;
+        }
+        
         this.name = name;
-        this.created = created;
-        this.modified = modified;
+        this.created = profile.created;
+        this.modified = DateTime.now();
+    }
+
+    public Profile(String userId, String password, String name) {
+        this.id = generateId();
+        this.userId = userId;
+        this.password = password;
+        this.name = name;
+        this.created = DateTime.now();
+        this.modified = null;
     }
 
     @Override
@@ -35,6 +58,10 @@ public class Profile implements Identifiable {
 
     public String getUserId() {
         return userId;
+    }
+    
+    public boolean validatePassword(String password) {
+        return this.password != null && this.password.equals(password); 
     }
 
     public String getName() {
@@ -66,6 +93,7 @@ public class Profile implements Identifiable {
         return new EqualsBuilder()
                 .append(this.id, other.id)
                 .append(this.userId, other.userId)
+                .append(this.password, other.password)
                 .append(this.name, other.name)
                 .append(this.created, other.created)
                 .append(this.modified, other.modified)
@@ -77,6 +105,7 @@ public class Profile implements Identifiable {
         return new HashCodeBuilder(13, 23)
                 .append(this.id)
                 .append(this.userId)
+                .append(this.password)
                 .append(this.name)
                 .append(this.created)
                 .append(this.modified)
@@ -88,6 +117,7 @@ public class Profile implements Identifiable {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append("id ", id)
                 .append("userId", userId)
+                .append("password", "[PASSWORD]")
                 .append("name", name)
                 .append("created", created)
                 .append("modified", modified)

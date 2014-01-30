@@ -1,13 +1,6 @@
 package no.lundesgaard.sudokufeud.api.model;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
-import javax.ws.rs.core.Response;
-
-public class JsonError {
+public class JsonError {/*
     private int code;
     private String reason;
     private String description;
@@ -65,4 +58,4 @@ public class JsonError {
                 .append("description", description)
                 .toString();
     }
-}
+*/}

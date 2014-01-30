@@ -4,12 +4,14 @@ import no.lundesgaard.sudokufeud.model.Profile;
 import no.lundesgaard.sudokufeud.repository.ProfileRepository;
 import no.lundesgaard.sudokufeud.service.ProfileService;
 
-public class StandardProfileService implements ProfileService {
-    private ProfileRepository profileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-    public StandardProfileService(ProfileRepository profileRepository) {
-        this.profileRepository = profileRepository;
-    }
+@Service
+public class StandardProfileService implements ProfileService {
+    
+    @Autowired
+    private ProfileRepository profileRepository;
 
     @Override
     public String createProfile(Profile profile) {
@@ -32,7 +34,7 @@ public class StandardProfileService implements ProfileService {
     }
 
     @Override
-    public void updateProfile(String profileId, Profile profile) {
+    public void updateProfile(Profile profile) {
         profileRepository.update(profile);
     }
 

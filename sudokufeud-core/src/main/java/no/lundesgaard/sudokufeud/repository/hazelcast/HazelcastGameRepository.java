@@ -1,36 +1,48 @@
 package no.lundesgaard.sudokufeud.repository.hazelcast;
 
-import com.hazelcast.core.ILock;
-import com.hazelcast.core.IMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.repository.GameRepository;
 import no.lundesgaard.sudokufeud.repository.exception.EntityNotFoundException;
 import no.lundesgaard.sudokufeud.repository.exception.GameNotFoundException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import com.hazelcast.core.IMap;
 
+@Repository
 public class HazelcastGameRepository
         extends AbstractHazelcastRepository<Game>
         implements GameRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastGameRepository.class);
-
-    private final IMap<String, Set<String>> playerIdGameMap;
-
-    public HazelcastGameRepository(ILock gameRepositorylock, IMap<String, Game> gameMap, IMap<String, Set<String>> playerIdGameMap) {
-        super(LOGGER, gameRepositorylock, gameMap);
-        this.playerIdGameMap = playerIdGameMap;
+    private static final String GAME_REPOSITORY_LOCK_ID = "gameRepositoryLock";
+    private static final String GAME_REPOSITORY_MAP_ID = "gameRepositoryMap";
+    
+    private static final String PLAYER_ID_GAME_IDS_MAP_ID = "playerIdGameIdsMap";
+    
+    public HazelcastGameRepository() {
+        super(LOGGER, GAME_REPOSITORY_LOCK_ID, GAME_REPOSITORY_MAP_ID);
+    }
+    
+    private IMap<String, Set<String>> getPlayerIdGameIdsMap() {
+        return getHazelcastInstance().getMap(PLAYER_ID_GAME_IDS_MAP_ID);
     }
 
     @Override
     public List<Game> findAllByPlayerId(String playerId) {
-        if (!playerIdGameMap.containsKey(playerId)) {
+        if (!getPlayerIdGameIdsMap().containsKey(playerId)) {
             return Collections.emptyList();
         }
 
-        Set<String> gameIdSet = playerIdGameMap.get(playerId);
+        Set<String> gameIdSet = getPlayerIdGameIdsMap().get(playerId);
         List<Game> games = new ArrayList<>();
         for (String gameId : gameIdSet) {
             games.add(read(gameId));
@@ -41,8 +53,8 @@ public class HazelcastGameRepository
 
     @Override
     public Game findOneByPlayerId(String playerId, String gameId) {
-        if (playerIdGameMap.containsKey(playerId)) {
-            Set<String> gameIdSet = playerIdGameMap.get(playerId);
+        if (getPlayerIdGameIdsMap().containsKey(playerId)) {
+            Set<String> gameIdSet = getPlayerIdGameIdsMap().get(playerId);
             for (String id : gameIdSet) {
                 if (id.equals(gameId)) {
                     return read(gameId);
@@ -81,17 +93,17 @@ public class HazelcastGameRepository
     private void addGameId(String playerId, String gameId) {
         Set<String> gameIdList = getGameIdSet(playerId);
         gameIdList.add(gameId);
-        playerIdGameMap.put(playerId, gameIdList);
+        getPlayerIdGameIdsMap().put(playerId, gameIdList);
     }
 
     private void removeGameId(String playerId, String gameId) {
         Set<String> gameIdSet = getGameIdSet(playerId);
         gameIdSet.remove(gameId);
-        playerIdGameMap.put(playerId, gameIdSet);
+        getPlayerIdGameIdsMap().put(playerId, gameIdSet);
     }
 
     private Set<String> getGameIdSet(String profileId) {
-        Set<String> gameIdSet = playerIdGameMap.get(profileId);
+        Set<String> gameIdSet = getPlayerIdGameIdsMap().get(profileId);
         if (gameIdSet == null) {
             gameIdSet = new HashSet<>();
         }

@@ -1,33 +1,8 @@
 package no.lundesgaard.sudokufeud.api.resource;
 
-import no.lundesgaard.sudokufeud.api.model.JsonGame;
-import no.lundesgaard.sudokufeud.api.model.JsonGameInvitation;
-import no.lundesgaard.sudokufeud.api.model.JsonNewGame;
-import no.lundesgaard.sudokufeud.model.Board;
-import no.lundesgaard.sudokufeud.model.Game;
-import no.lundesgaard.sudokufeud.model.Player;
-import no.lundesgaard.sudokufeud.service.GameService;
-import no.lundesgaard.sudokufeud.service.ProfileService;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import static no.lundesgaard.sudokufeud.api.resource.ProfileResource.PROFILE_ID;
-
-@Path(GamesResource.PATH)
-@Component
-public class GamesResource {
+//@Path(GamesResource.PATH)
+//@Component
+public class GamesResource {/*
 //    private static final Logger LOGGER = LoggerFactory.getLogger(GamesResource.class);
 
     public static final String PATH = "games";
@@ -46,12 +21,8 @@ public class GamesResource {
     public Response getGames(@HeaderParam(PROFILE_ID) String profileId) {
         List<Game> games = gameService.getGames(profileId);
 
-        DateTime lastModified = null;
-        for (Game game : games) {
-            if (lastModified == null || lastModified.isBefore(game.getLastModified())) {
-                lastModified = game.getLastModified();
-            }
-        }
+        
+        JsonGame jsonGame = toJsonGame(game, profileId);
 
         Response.ResponseBuilder responseBuilder = Response.ok(toJsonGames(games, profileId));
         if (lastModified != null) {
@@ -245,4 +216,4 @@ public class GamesResource {
     }
 
 
-}
+*/}
