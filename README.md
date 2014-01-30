@@ -34,6 +34,11 @@ Rot: http://sudokufeud.lundesgaard.no/api
 | POST   | games/{gameId}/rounds | Spill runde                         |
 | GET    | games/{gameId}/rounds | Hent spilte runder                  |
 
+# Sikkerhet
+
+API-et krever Basic Authentication. Brukeren opprettes med passordet som sendes inn 
+hvis den ikke finnes fra før.
+
 # Runtime-oppsett
 
 Applikasjonen er satt opp med [Spring Boot](http://projects.spring.io/spring-boot/). Spring Boot inkluderer et Emedded Tomcat-kjøremiljø 
