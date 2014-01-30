@@ -5,52 +5,43 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public class JsonProfile {
-    private String userId;
-    private String name;
+public class JsonUpdatedProfile extends JsonProfile {
+    private String password;
 
-    public String getName() {
-        return name;
+    public String getPassword() {
+        return password;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null) return false;
         if (o == this) return true;
-        if (!(o instanceof JsonProfile)) return false;
+        if (o.getClass() != this.getClass()) return false;
 
-        JsonProfile other = (JsonProfile) o;
+        JsonUpdatedProfile other = (JsonUpdatedProfile) o;
         return new EqualsBuilder()
-                .append(this.userId, other.userId)
-                .append(this.name, other.name)
+                .appendSuper(super.equals(o))
+                .append(this.password, other.password)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(13, 23)
-                .append(this.userId)
-                .append(this.name)
+                .appendSuper(super.hashCode())
+                .append(this.password)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("userId", userId)
-                .append("name", name)
+                .appendSuper(super.toString())
+                .append("password", password)
                 .toString();
     }
 }

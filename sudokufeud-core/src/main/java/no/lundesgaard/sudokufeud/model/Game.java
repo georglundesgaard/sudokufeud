@@ -2,6 +2,8 @@ package no.lundesgaard.sudokufeud.model;
 
 import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
 
+import java.util.UUID;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -10,18 +12,22 @@ import org.joda.time.DateTime;
 
 public class Game implements Identifiable {
     private static final long serialVersionUID = -3979593399708874988L;
+    
+    public static String generateId() {
+        return UUID.randomUUID().toString();
+    }
 
-    private String id;
-    private Player player1;
-    private Player player2;
-    private String currentPlayerId;
-    private Board board;
-    private int[] availablePieces;
-    private Round[] rounds;
-    private DateTime started;
-    private DateTime completed;
-    private DateTime created;
-    private DateTime modified;
+    private final String id;
+    private final Player player1;
+    private final Player player2;
+    private final String currentPlayerId;
+    private final Board board;
+    private final int[] availablePieces;
+    private final Round[] rounds;
+    private final DateTime started;
+    private final DateTime completed;
+    private final DateTime created;
+    private final DateTime modified;
 
     public Game(
             String id,
@@ -74,12 +80,12 @@ public class Game implements Identifiable {
     }
 
     public State getState() {
-//        if (started == null && completed == null) {
-//            return State.NEW;
-//        }
-//        if (started != null && completed == null) {
-//            return State.RUNNING;
-//        }
+        if (started == null && completed == null) {
+            return State.NEW;
+        }
+        if (started != null && completed == null) {
+            return State.RUNNING;
+        }
         return State.COMPLETED;
     }
 

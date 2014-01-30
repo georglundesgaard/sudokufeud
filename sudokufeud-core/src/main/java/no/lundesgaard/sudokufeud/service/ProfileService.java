@@ -11,7 +11,7 @@ public interface ProfileService {
 
     String createProfile(Profile profile);
 
-    void updateProfile(String profileId, Profile profile);
+    void updateProfile(Profile profile);
 
     void deleteProfile(String profileId);
 }

@@ -34,7 +34,7 @@ public class StandardProfileService implements ProfileService {
     }
 
     @Override
-    public void updateProfile(String profileId, Profile profile) {
+    public void updateProfile(Profile profile) {
         profileRepository.update(profile);
     }
 

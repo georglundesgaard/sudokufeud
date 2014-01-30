@@ -21,12 +21,8 @@ public class GamesResource {/*
     public Response getGames(@HeaderParam(PROFILE_ID) String profileId) {
         List<Game> games = gameService.getGames(profileId);
 
-        DateTime lastModified = null;
-        for (Game game : games) {
-            if (lastModified == null || lastModified.isBefore(game.getLastModified())) {
-                lastModified = game.getLastModified();
-            }
-        }
+        
+        JsonGame jsonGame = toJsonGame(game, profileId);
 
         Response.ResponseBuilder responseBuilder = Response.ok(toJsonGames(games, profileId));
         if (lastModified != null) {

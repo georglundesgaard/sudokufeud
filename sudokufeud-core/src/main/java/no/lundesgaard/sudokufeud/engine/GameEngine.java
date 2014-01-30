@@ -63,7 +63,7 @@ public class GameEngine {
         Player player2 = new Player(playerId2, 0, null);
 
         return new Game(
-                UUID.randomUUID().toString(),
+                Game.generateId(),
                 player1,
                 player2,
                 null,
