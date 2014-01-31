@@ -9,7 +9,7 @@ public interface ProfileService {
 
     Profile getProfileByUserId(String userId);
 
-    String createProfile(Profile profile);
+	void createProfile(Profile profile);
 
     void updateProfile(Profile profile);
 

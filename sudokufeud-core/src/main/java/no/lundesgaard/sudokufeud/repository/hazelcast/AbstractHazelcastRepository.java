@@ -8,92 +8,62 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 
+@SuppressWarnings("SpringJavaAutowiringInspection")
 public abstract class AbstractHazelcastRepository<T extends Identifiable> implements Repository<T> {
 
-    @Autowired
-    private HazelcastInstance hazelcastInstance;
-    
-    private final Logger logger;
-    private final String repositoryLockId;
-    private final String repositoryMapId;
+	@Autowired
+	protected HazelcastInstance hazelcastInstance;
 
-    public AbstractHazelcastRepository(Logger logger, String repositoryLockId, String repositoryMapId) {
-        this.logger = logger;
-        this.repositoryLockId = repositoryLockId;
-        this.repositoryMapId = repositoryMapId;
-    }
-    
-    protected HazelcastInstance getHazelcastInstance() {
-        return hazelcastInstance;
-    }
-    
-    protected ILock getRepositoryLock() {
-        return hazelcastInstance.getLock(repositoryLockId);
-    } 
-    
-    protected IMap<String, T> getRepositoryMap() {
-        return hazelcastInstance.getMap(repositoryMapId);
-    }
+	private final Class<T> objectType;
+	private final Logger logger;
+	private final String repositoryMapId;
 
-    private LockedMap<String, T> getLockedMap() {
-        return new LockedMap<>(logger, getRepositoryLock(), getRepositoryMap());
-    }
+	public AbstractHazelcastRepository(Class<T> objectType, Logger logger, String repositoryMapId) {
+		this.objectType = objectType;
+		this.logger = logger;
+		this.repositoryMapId = repositoryMapId;
+	}
 
-    @Override
-    public String create(T object) {
-        String id = object.getId();
+	protected IMap<String, T> getRepositoryMap() {
+		return hazelcastInstance.getMap(repositoryMapId);
+	}
 
-        try (LockedMap<String, T> lockedMap = getLockedMap()) {
-            lockedMap.put(id, object);
+	@Override
+	public void create(T object) {
+		String id = object.getId();
+		IMap<String, T> repositoryMap = getRepositoryMap();
+		repositoryMap.put(id, object);
+		logger.debug("{} created with id <{}>", objectType.getSimpleName(), id);
+	}
 
-            onCreated(object);
-        }
+	@Override
+	public T read(String id) {
+		IMap<String, T> repositoryMap = getRepositoryMap();
+		if (id == null || !repositoryMap.containsKey(id)) {
+			throw entityNotFoundException(id);
+		}
+		return repositoryMap.get(id);
+	}
 
-        return id;
-    }
+	@Override
+	public void update(T updatedObject) {
+		IMap<String, T> repositoryMap = getRepositoryMap();
+		String id = updatedObject.getId();
+		repositoryMap.put(id, updatedObject);
+		logger.debug("{} with id <{}> updated", objectType.getSimpleName(), id);
+	}
 
-    @Override
-    public T read(String id) {
-        IMap<String, T> objectMap = getRepositoryMap();
-        if (id == null || !objectMap.containsKey(id)) {
-            throw entityNotFoundException(id);
-        }
-        return objectMap.get(id);
-    }
+	@Override
+	public void delete(String id) {
+		IMap<String, T> repositoryMap = getRepositoryMap();
+		if (id == null || !repositoryMap.containsKey(id)) {
+			throw entityNotFoundException(id);
+		}
+		repositoryMap.remove(id);
+		logger.debug("{} with id <{}> removed", objectType.getSimpleName(), id);
+	}
 
-    @Override
-    public void update(T newObject) {
-        try (LockedMap<String, T> lockedMap = getLockedMap()) {
-            T oldObject = read(newObject.getId());
-
-            lockedMap.put(newObject.getId(), newObject);
-
-            onUpdated(oldObject, newObject);
-        }
-    }
-
-    @Override
-    public void delete(String id) {
-        IMap<String, T> objectMap = getRepositoryMap();
-        if (id == null || !objectMap.containsKey(id)) {
-            throw entityNotFoundException(id);
-        }
-
-        try (LockedMap<String, T> lockedMap = getLockedMap()) {
-            T oldObject = lockedMap.remove(id);
-
-            onDeleted(oldObject);
-        }
-    }
-
-    protected abstract void onCreated(T newObject);
-
-    protected abstract void onUpdated(T oldObject, T newObject);
-
-    protected abstract void onDeleted(T oldObject);
-
-    protected abstract EntityNotFoundException entityNotFoundException(String id);
+	protected abstract EntityNotFoundException entityNotFoundException(String id);
 }

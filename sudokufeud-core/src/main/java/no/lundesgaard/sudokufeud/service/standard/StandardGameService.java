@@ -17,67 +17,68 @@ import org.springframework.stereotype.Service;
 @Service
 public class StandardGameService implements GameService {
 
-    @Autowired
-    private BoardGenerator boardGenerator;
-    
-    @Autowired
-    private GameEngine gameEngine;
-    
-    @Autowired
-    private GameRepository gameRepository;
+	@Autowired
+	private BoardGenerator boardGenerator;
 
-    @Override
-    public String createGame(String playerId1, String playerId2, Board.Difficulty difficulty) {
-        // TODO: validate player ids
+	@Autowired
+	private GameEngine gameEngine;
 
-        Board board = boardGenerator.generateBoard(difficulty);
-        Game game = gameEngine.createGame(playerId1, playerId2, board);
-        return gameRepository.create(game);
-    }
+	@Autowired
+	private GameRepository gameRepository;
 
-    @Override
-    public List<Game> getGames(String playerId) {
-        return gameRepository.findAllByPlayerId(playerId);
-    }
+	@Override
+	public String createGame(String playerId1, String playerId2, Board.Difficulty difficulty) {
+		// TODO: validate player ids
 
-    @Override
-    public Game getGame(String playerId, String gameId) {
-        return gameRepository.findOneByPlayerId(playerId, gameId);
-    }
+		Board board = boardGenerator.generateBoard(difficulty);
+		Game game = gameEngine.createGame(playerId1, playerId2, board);
+		gameRepository.create(game);
+		return game.getId();
+	}
 
-    @Override
-    public Game acceptInvitation(String playerId, String gameId) {
-        Game game = gameRepository.findOneByPlayerId(playerId, gameId);
-        if (game.getState() != Game.State.NEW || !game.getPlayer2().getPlayerId().equals(playerId)) {
-            throw new IllegalGameStateException("not an invitation");
-        }
-        game = gameEngine.startGame(game, game.getPlayer1().getPlayerId());
-        gameRepository.update(game);
-        return game;
-    }
+	@Override
+	public List<Game> getGames(String playerId) {
+		return gameRepository.findAllByPlayerId(playerId);
+	}
 
-    @Override
-    public void declineInvitation(String playerId, String gameId) {
-        Game game = gameRepository.findOneByPlayerId(playerId, gameId);
-        if (game.getState() != Game.State.NEW || !game.getPlayer2().getPlayerId().equals(playerId)) {
-            throw new IllegalGameStateException("not an invitation");
-        }
-        gameRepository.delete(game.getId());
-    }
+	@Override
+	public Game getGame(String playerId, String gameId) {
+		return gameRepository.findOneByPlayerId(playerId, gameId);
+	}
 
-    @Override
-    public int executeRound(String playerId, String gameId, Move[] moves) {
-        Game game = gameRepository.findOneByPlayerId(playerId, gameId);
-        if (game.getState() != Game.State.RUNNING) {
-            throw new IllegalGameStateException("not running");
-        }
-        if (!game.getCurrentPlayer().getPlayerId().equals(playerId)) {
-            throw new IllegalGameStateException("not current player");
-        }
+	@Override
+	public Game acceptInvitation(String playerId, String gameId) {
+		Game game = gameRepository.findOneByPlayerId(playerId, gameId);
+		if (game.getState() != Game.State.NEW || !game.getPlayer2().getPlayerId().equals(playerId)) {
+			throw new IllegalGameStateException("not an invitation");
+		}
+		game = gameEngine.startGame(game, game.getPlayer1().getPlayerId());
+		gameRepository.update(game);
+		return game;
+	}
 
-        game = gameEngine.executeRound(game, moves);
-        gameRepository.update(game);
+	@Override
+	public void declineInvitation(String playerId, String gameId) {
+		Game game = gameRepository.findOneByPlayerId(playerId, gameId);
+		if (game.getState() != Game.State.NEW || !game.getPlayer2().getPlayerId().equals(playerId)) {
+			throw new IllegalGameStateException("not an invitation");
+		}
+		gameRepository.delete(game.getId());
+	}
 
-        return game.getRounds().length - 1;
-    }
+	@Override
+	public int executeRound(String playerId, String gameId, Move[] moves) {
+		Game game = gameRepository.findOneByPlayerId(playerId, gameId);
+		if (game.getState() != Game.State.RUNNING) {
+			throw new IllegalGameStateException("not running");
+		}
+		if (!game.getCurrentPlayer().getPlayerId().equals(playerId)) {
+			throw new IllegalGameStateException("not current player");
+		}
+
+		game = gameEngine.executeRound(game, moves);
+		gameRepository.update(game);
+
+		return game.getRounds().length - 1;
+	}
 }
