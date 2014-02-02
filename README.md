@@ -52,6 +52,7 @@ Kjøres med følgende kommando fra prosjekt-roten:
     run.sh
     
 Alternativt kan main-klassen [SudokuFeudApiConfiguration](sudokufeud-api/src/main/java/no/lundesgaard/sudokufeud/api/SudokuFeudApiConfiguration.java) kjøres. 
+
 Kjøre-parametre:
 
 * -Xms64m 
@@ -68,6 +69,8 @@ Kjøres med følgende kommando fra prosjekt-roten:
 
     run-aws.sh
     
+Kjøre-parametre:
+
 * -Xms64m 
 * -Xmx512m 
 * -Dhazelcast.config=config/hazelcast-aws.xml
