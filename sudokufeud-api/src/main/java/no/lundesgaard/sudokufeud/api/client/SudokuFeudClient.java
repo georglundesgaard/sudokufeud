@@ -17,59 +17,66 @@ import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 
 public class SudokuFeudClient {
-    private static final String GAMES = "games";
-    private static final String PROFILE = "profile";
-    private static final String ROUNDS = "rounds";
-    
-    private final Client client;
+	private static final String GAMES = "games";
+	private static final String PROFILE = "profile";
+	private static final String ROUNDS = "rounds";
+
+	private Client client;
 	private final String root;
 
 	public SudokuFeudClient(String root, String userId, String password, boolean logging) {
 		ClientConfig config = new DefaultClientConfig();
-        config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
-        Client client = Client.create(config);
-        if (logging) {
-            client.addFilter(new LoggingFilter(System.out));
-        }
-        client.addFilter(new HTTPBasicAuthFilter(userId, password));
-        
-        this.client = client;
+		config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
+		Client client = Client.create(config);
+		if (logging) {
+			client.addFilter(new LoggingFilter(System.out));
+		}
+		client.addFilter(new HTTPBasicAuthFilter(userId, password));
+
+		this.client = client;
 		this.root = root;
 	}
 
- public JsonProfile updateProfile(String name) {
-        JsonUpdatedProfile jsonUpdatedProfile = new JsonUpdatedProfile();
-        jsonUpdatedProfile.setName(name);
-        
-        return client
-.resource(root).path(PROFILE)         .entity(jsonUpdatedProfile, MediaType.APPLICATION_JSON_TYPE)
-                .put(JsonProfile.class);
-    }
+	private void validateState() {
+		if (client == null) {
+			throw new IllegalStateException("client is closed");
+		}
+	}
 
-    public JsonProfile getProfile() {
-        return client
-.resource(root).path(PROFILE).get(JsonProfile.class);
+	public JsonProfile updateProfile(String name) {
+		validateState();
+
+		JsonUpdatedProfile jsonUpdatedProfile = new JsonUpdatedProfile();
+		jsonUpdatedProfile.setName(name);
+
+		return client.resource(root).path(PROFILE).entity(jsonUpdatedProfile, MediaType.APPLICATION_JSON_TYPE).put(JsonProfile.class);
+	}
+
+	public JsonProfile getProfile() {
+		validateState();
+
+		return client.resource(root).path(PROFILE).get(JsonProfile.class);
 	}
 
 	public void createGame(String opponent) {
-        JsonNewGame jsonNewGame = new JsonNewGame();
-        jsonNewGame.setOpponent(opponent);
-        jsonNewGame.setDifficulty("EASY");
-        
-        client
-                .resource(root)
-.path(GAMES).entity(jsonNewGame, MediaType.APPLICATION_JSON_TYPE)
-.post();
+		validateState();
+
+		JsonNewGame jsonNewGame = new JsonNewGame();
+		jsonNewGame.setOpponent(opponent);
+		jsonNewGame.setDifficulty("EASY");
+
+		client.resource(root).path(GAMES).entity(jsonNewGame, MediaType.APPLICATION_JSON_TYPE).post();
 	}
 
 	public JsonGame[] getGames() {
-        return client
-                .resource(root)
-                .path(GAMES)
-.get(JsonGame[].class);
+		validateState();
+
+		return client.resource(root).path(GAMES).get(JsonGame[].class);
 	}
 
 	public JsonGame acceptInvitation(String gameId) {
+		validateState();
+
 		JsonGameInvitation jsonGameInvitation = new JsonGameInvitation();
 		jsonGameInvitation.setResponse(JsonGameInvitation.Response.ACCEPT);
 
@@ -77,6 +84,8 @@ public class SudokuFeudClient {
 	}
 
 	public void declineInvitation(String gameId) {
+		validateState();
+
 		JsonGameInvitation jsonGameInvitation = new JsonGameInvitation();
 		jsonGameInvitation.setResponse(JsonGameInvitation.Response.DECLINE);
 
@@ -84,9 +93,18 @@ public class SudokuFeudClient {
 	}
 
 	public void executeRound(String gameId, JsonMove... jsonMoves) {
+		validateState();
+
 		JsonRound jsonRound = new JsonRound();
 		jsonRound.setMoves(jsonMoves);
 
 		client.resource(root).path(GAMES).path(gameId).path(ROUNDS).entity(jsonRound, MediaType.APPLICATION_JSON_TYPE).post();
+	}
+
+	public void destroy() {
+		if (client != null) {
+			client.destroy();
+			client = null;
+		}
 	}
 }
