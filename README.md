@@ -47,13 +47,32 @@ som setter opp en rekke standard-tjenster i tillegg til API ovenfor. En rekke av
 er kun tilgjengelig for admin-brukeren. Hvis admin-brukeren ikke finnes fra før, opprettes den ved
 oppstart og det genererte passordet skrives til loggen som en INFO-melding.
 
-Kjøres med følgdende kommondo fra prosjekt-roten:
+Kjøres med følgende kommando fra prosjekt-roten:
 
-    java -jar sudokufeud-api/target/sudokufeud-api-1.0-SNAPSHOT.jar
+    run.sh
     
-Alternativt kan main-klassen [SudokuFeudApiConfiguration](sudokufeud-api/src/main/java/no/lundesgaard/sudokufeud/api/SudokuFeudApiConfiguration.java) kjøres.
+Alternativt kan main-klassen [SudokuFeudApiConfiguration](sudokufeud-api/src/main/java/no/lundesgaard/sudokufeud/api/SudokuFeudApiConfiguration.java) kjøres. 
+Kjøre-parametre:
+
+* -Xms64m 
+* -Xmx512m 
+* -Dhazelcast.config=config/hazelcast-dev.xml
+
+Applikasjon er konfigurert for å enkelt kunne kjøres i et cluster på Amazon AWS. Lag en 
+Hazelcast-konfigurasjon for AWS (config/hazelcast-aws.xml) basert på malen 
+config/hazelcast-aws-template.xml. For AWS er det viktig å sette opp acces- og secret-key
+AWS-kontoen og hvilken security group instansene tilhører slik Hazelcast kan finne alle
+instansene som tilhører clusteret.
+
+Kjøres med følgende kommando fra prosjekt-roten:
+
+    run-aws.sh
+    
+* -Xms64m 
+* -Xmx512m 
+* -Dhazelcast.config=config/hazelcast-aws.xml
 
 # Systemkrav
 
-Java 8
-Maven 3
+* Java 8
+* Maven 3
