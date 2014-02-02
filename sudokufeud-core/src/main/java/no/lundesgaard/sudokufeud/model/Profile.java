@@ -37,7 +37,11 @@ public class Profile implements Identifiable {
             this.password = profile.password;
         }
         
-        this.name = name;
+        if (name != null && name.trim().length() > 0) {
+            this.name = name;
+        } else {
+            this.name = profile.name;
+        }
         this.created = profile.created;
         this.modified = DateTime.now();
     }
