@@ -23,12 +23,12 @@ Se [eksempelspill](sample.md) for gjennomgang av et typisk spill.
 
 Rot: http://sudokufeud.lundesgaard.no/api
 
-| Metode | Sti                   | Beskrivelse                         |
-| ------ | --------------------- | ----------------------------------- |
+| Metode | Sti                   | Beskrivelse                         | Eksempel
+| ------ | --------------------- | ----------------------------------- |--------------------
 | GET    | profile               | Hent brukerprofil                   |
 | PUT    | profile               | Oppdater/opprett brukerprofil       |
 | GET    | games                 | Hent spill                          |
-| POST   | games                 | Opprett et spill                    |
+| POST   | games                 | Opprett et spill                    | {"opponent": "georg","difficulty": "EASY"}
 | GET    | games/{gameId}        | Hent ett spill                      |
 | PUT    | games/{gameId}        | Aksepter/avslå invitasjon til spill |
 | POST   | games/{gameId}/rounds | Spill runde                         |
