@@ -30,7 +30,7 @@ Rot: http://sudokufeud.lundesgaard.no/api
 | GET    | games                 | Hent spill                          |
 | POST   | games                 | Opprett et spill                    | {"opponent": "georg","difficulty": "EASY"}
 | GET    | games/{gameId}        | Hent ett spill                      |
-| PUT    | games/{gameId}        | Aksepter/avslå invitasjon til spill |
+| PUT    | games/{gameId}        | Aksepter/avslå invitasjon til spill | {"response": "ACCEPT"}
 | POST   | games/{gameId}/rounds | Spill runde                         |
 | GET    | games/{gameId}/rounds | Hent spilte runder                  |
 
