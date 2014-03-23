@@ -25,13 +25,13 @@ Rot: http://sudokufeud.lundesgaard.no/api
 
 | Metode | Sti                   | Beskrivelse                         | Eksempel
 | ------ | --------------------- | ----------------------------------- |--------------------
-| GET    | profile               | Hent brukerprofil                   |
-| PUT    | profile               | Oppdater/opprett brukerprofil       |
+| GET    | profile               | Hent brukerprofil                   | 
+| PUT    | profile               | Oppdater/opprett brukerprofil       | {"userId": "georg","name": "Georg Lundesgaard","password": "georg"}
 | GET    | games                 | Hent spill                          |
 | POST   | games                 | Opprett et spill                    | {"opponent": "georg","difficulty": "EASY"}
 | GET    | games/{gameId}        | Hent ett spill                      |
 | PUT    | games/{gameId}        | Aksepter/avslå invitasjon til spill | {"response": "ACCEPT"}
-| POST   | games/{gameId}/rounds | Spill runde                         |
+| POST   | games/{gameId}/rounds | Spill runde                         | {"moves": [{"x": 1,"y": 1,"piece": 9}, ...]}
 | GET    | games/{gameId}/rounds | Hent spilte runder                  |
 
 # Sikkerhet
