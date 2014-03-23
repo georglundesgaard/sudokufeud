@@ -1,21 +1,21 @@
 package no.lundesgaard.sudokufeud.service;
 
-import no.lundesgaard.sudokufeud.model.Board;
+import java.util.List;
+
+import no.lundesgaard.sudokufeud.constants.Difficulty;
 import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.model.Move;
 
-import java.util.List;
-
 public interface GameService {
-    List<Game> getGames(String playerId);
+	List<Game> getGames(String playerUserId);
 
-    Game getGame(String playerId, String gameId);
+	Game getGame(String playerUserId, String gameId);
 
-    String createGame(String playerId1, String playerId2, Board.Difficulty difficulty);
+	String createGame(String playerUserId1, String playerUserId2, Difficulty difficulty);
 
-    Game acceptInvitation(String playerId, String gameId);
+	Game acceptInvitation(String playerUserId, String gameId);
 
-    void declineInvitation(String playerId, String gameId);
+	void declineInvitation(String playerUserId, String gameId);
 
-    int executeRound(String playerId, String gameId, Move[] moves);
+	int executeRound(String playerUserId, String gameId, Move[] moves);
 }

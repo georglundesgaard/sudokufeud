@@ -1,61 +1,69 @@
 package no.lundesgaard.sudokufeud.api.model;
 
-public class JsonError {/*
-    private int code;
-    private String reason;
-    private String description;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.http.HttpStatus;
 
-    public JsonError(int code, String reason, String description) {
-        this.code = code;
-        this.reason = reason;
-        this.description = description;
-    }
+public class JsonError {
+	private int code;
+	private String reason;
+	private String description;
 
-    public JsonError(Response.Status status, String description) {
-        this(status.getStatusCode(), status.getReasonPhrase(), description);
-    }
+	public JsonError(int code, String reason, String description) {
+		this.code = code;
+		this.reason = reason;
+		this.description = description;
+	}
 
-    public int getCode() {
-        return code;
-    }
+	public JsonError(HttpStatus httpStatus, String description) {
+		this.code = httpStatus.value();
+		this.reason = httpStatus.getReasonPhrase();
+		this.description = description;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public int getCode() {
+		return code;
+	}
 
-    public String getReason() {
-        return reason;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null) return false;
-        if (o == this) return true;
-        if (o.getClass() != this.getClass()) return false;
+	public String getReason() {
+		return reason;
+	}
 
-        JsonError other = (JsonError) o;
-        return new EqualsBuilder()
-                .append(this.code, other.code)
-                .append(this.reason, other.reason)
-                .append(this.description, other.description)
-                .isEquals();
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) return false;
+		if (o == this) return true;
+		if (o.getClass() != this.getClass()) return false;
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(13, 23)
-                .append(this.code)
-                .append(this.reason)
-                .append(this.description)
-                .toHashCode();
-    }
+		JsonError other = (JsonError) o;
+		return new EqualsBuilder()
+				.append(this.code, other.code)
+				.append(this.reason, other.reason)
+				.append(this.description, other.description)
+				.isEquals();
+	}
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("code", code)
-                .append("reason", reason)
-                .append("description", description)
-                .toString();
-    }
-*/}
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(13, 23)
+				.append(this.code)
+				.append(this.reason)
+				.append(this.description)
+				.toHashCode();
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("code", code)
+				.append("reason", reason)
+				.append("description", description)
+				.toString();
+	}
+}

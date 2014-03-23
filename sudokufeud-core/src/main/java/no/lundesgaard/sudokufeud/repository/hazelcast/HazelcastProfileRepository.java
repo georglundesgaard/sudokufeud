@@ -24,20 +24,20 @@ public class HazelcastProfileRepository extends AbstractHazelcastRepository<Prof
 	}
 
 	@Override
-    public Profile findByUserId(String userId) {
-        Map<String, Profile> repositoryMap = getRepositoryMap();
-        Optional<Profile> profile = repositoryMap
-                .values()
-                .parallelStream()
-                .filter((p) -> p.getUserId().equals(userId))
-                .findFirst();
-        
-        if (profile.isPresent()) {
-            return profile.get();
-        }
+	public Profile findByUserId(String userId) throws UnknownUserIdException {
+		Map<String, Profile> repositoryMap = getRepositoryMap();
+		Optional<Profile> profile = repositoryMap
+				.values()
+				.parallelStream()
+				.filter((p) -> p.getUserId().equals(userId))
+				.findFirst();
 
-        throw new UnknownUserIdException(userId);
-    }
+		if (profile.isPresent()) {
+			return profile.get();
+		}
+
+		throw new UnknownUserIdException(userId);
+	}
 
 	@Override
 	protected EntityNotFoundException entityNotFoundException(String key) {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import no.lundesgaard.sudokufeud.model.Game;
+import no.lundesgaard.sudokufeud.model.Profile;
 import no.lundesgaard.sudokufeud.repository.GameRepository;
 import no.lundesgaard.sudokufeud.repository.exception.EntityNotFoundException;
 import no.lundesgaard.sudokufeud.repository.exception.GameNotFoundException;
@@ -25,20 +26,20 @@ public class HazelcastGameRepository extends AbstractHazelcastRepository<Game> i
 	}
 
 	@Override
-    public List<Game> findAllByPlayerId(String playerId) {
-        Map<String, Game> repositoryMap = getRepositoryMap();
-        return repositoryMap
-                .values()
-                .parallelStream()
-                .filter((g) -> g.getPlayer(playerId) != null)
-                .collect(toList());
-    }
+	public List<Game> findAllByPlayer(Profile playerProfile) {
+		Map<String, Game> repositoryMap = getRepositoryMap();
+		return repositoryMap
+				.values()
+				.parallelStream()
+				.filter((g) -> g.isPlayer(playerProfile))
+				.collect(toList());
+	}
 
 	@Override
-	public Game findOneByPlayerId(String playerId, String gameId) {
+	public Game findOneByPlayer(Profile playerProfile, String gameId) {
 		Game game = read(gameId);
-		if (game == null || game.getPlayer(playerId) == null) {
-			throw new GameNotFoundException(gameId, playerId);
+		if (game == null || !game.isPlayer(playerProfile)) {
+			throw new GameNotFoundException(gameId, playerProfile.getUserId());
 		}
 
 		return game;

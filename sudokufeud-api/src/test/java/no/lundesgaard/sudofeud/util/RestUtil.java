@@ -9,7 +9,7 @@ public class RestUtil {
 
 	public static void main(String[] args) {
 		SudokuFeudClient client1 = new SudokuFeudClient(ROOT, "georg", "georg", LOGGING);
-		// SudokuFeudClient client2 = new SudokuFeudClient(ROOT, "ida", "ida", LOGGING);
+		SudokuFeudClient client2 = new SudokuFeudClient(ROOT, "ida", "ida", LOGGING);
 		// SudokuFeudClient client3 = new SudokuFeudClient(ROOT, "oddbjørn", "oddbjørn", LOGGING);
 
 		try {
@@ -24,7 +24,7 @@ public class RestUtil {
 			// print(client2.updateProfile("Ida Sirnes"));
 			// print(client2.getProfile());
 			// client2.createGame("georg");
-			// print(client2.getGames());
+			print(client2.getGames());
 
 			// JsonGame[] games = client2.getGames();
 			// String gameId = games[0].getId();
@@ -152,7 +152,9 @@ public class RestUtil {
 	private static int getGameCount(String name) {
 		SudokuFeudClient client = new SudokuFeudClient(ROOT, name, name, false);
 		return client.getGames().length;
-	};
+	}
+
+	;
 
 	private static void print(Object json) {
 		System.out.println(json);
@@ -171,47 +173,30 @@ public class RestUtil {
 
 	private static void sampleGame(SudokuFeudClient client1, SudokuFeudClient client2, String gameId) {
 		// round 1
-		client1.executeRound(                gameId,
- jsonMove(6, 5, 2), jsonMove(0, 1, 3), jsonMove(4, 1, 8));
+		client1.executeRound(gameId, jsonMove(6, 5, 2), jsonMove(0, 1, 3), jsonMove(4, 1, 8));
 
 		client2.executeRound(gameId, jsonMove(3, 3, 5), jsonMove(5, 5, 6), jsonMove(3, 2, 7), jsonMove(3, 0, 2), jsonMove(3, 1, 1));
 
 		// round 2
-		client1.executeRound(gameId, jsonMove(6, 0, 1),         jsonMove(8, 7, 3),
-                jsonMove(6, 1, 4),
-                jsonMove(7, 7, 4),
-                jsonMove(8, 3, 4),
-                jsonMove(5, 7, 5));
+		client1.executeRound(gameId, jsonMove(6, 0, 1), jsonMove(8, 7, 3), jsonMove(6, 1, 4), jsonMove(7, 7, 4), jsonMove(8, 3, 4), jsonMove(5, 7, 5));
 
-		client2.executeRound( gameId,
-                jsonMove(8, 2, 6),
- jsonMove(2, 2, 9), jsonMove(0, 3, 9), jsonMove(6, 3, 8), jsonMove(1, 5, 8), jsonMove(4, 5, 1),
+		client2.executeRound(gameId, jsonMove(8, 2, 6), jsonMove(2, 2, 9), jsonMove(0, 3, 9), jsonMove(6, 3, 8), jsonMove(1, 5, 8), jsonMove(4, 5, 1),
 				jsonMove(4, 3, 7));
 
 		// round 3
-		client1.executeRound(
-gameId, jsonMove(1, 2, 2),
-                jsonMove(3, 4, 4),
-                jsonMove(7, 3, 6),
-                jsonMove(7, 4, 1),
- jsonMove(5, 8, 7), jsonMove(0, 0, 8));
+		client1.executeRound(gameId, jsonMove(1, 2, 2), jsonMove(3, 4, 4), jsonMove(7, 3, 6), jsonMove(7, 4, 1), jsonMove(5, 8, 7), jsonMove(0, 0, 8));
 
-		client2.executeRound(gameId, jsonMove(1, 4, 7), jsonMove(4, 6, 4), jsonMove(1, 7, 6), jsonMove(1, 3, 1), jsonMove(2, 3, 3),    jsonMove(0, 7, 2),
+		client2.executeRound(gameId, jsonMove(1, 4, 7), jsonMove(4, 6, 4), jsonMove(1, 7, 6), jsonMove(1, 3, 1), jsonMove(2, 3, 3), jsonMove(0, 7, 2),
 				jsonMove(3, 6, 3));
 
 		// round 4
-		client1.executeRound(gameId,       jsonMove(1, 0, 4),
- jsonMove(1, 1, 5), jsonMove(2, 7, 1), jsonMove(0, 6, 7), jsonMove(2, 8, 8));
+		client1.executeRound(gameId, jsonMove(1, 0, 4), jsonMove(1, 1, 5), jsonMove(2, 7, 1), jsonMove(0, 6, 7), jsonMove(2, 8, 8));
 
-		client2.executeRound(
-                gameId,
- jsonMove(6, 7, 7), jsonMove(3, 7, 8), jsonMove(6, 8, 9));
+		client2.executeRound(gameId, jsonMove(6, 7, 7), jsonMove(3, 7, 8), jsonMove(6, 8, 9));
 
 		// round 5
-        client1.executeRound(
-gameId, jsonMove(6, 6, 6),
-                jsonMove(3, 8, 6));
-    }
+		client1.executeRound(gameId, jsonMove(6, 6, 6), jsonMove(3, 8, 6));
+	}
 
 	private static JsonMove jsonMove(int x, int y, int piece) {
 		return new JsonMove(x, y, piece);

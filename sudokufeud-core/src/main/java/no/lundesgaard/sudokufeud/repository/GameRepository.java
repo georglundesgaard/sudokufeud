@@ -3,9 +3,10 @@ package no.lundesgaard.sudokufeud.repository;
 import java.util.List;
 
 import no.lundesgaard.sudokufeud.model.Game;
+import no.lundesgaard.sudokufeud.model.Profile;
 
 public interface GameRepository extends Repository<Game> {
-    List<Game> findAllByPlayerId(String playerId);
+	List<Game> findAllByPlayer(Profile player);
 
-    Game findOneByPlayerId(String playerId, String gameId);
+	Game findOneByPlayer(Profile player, String gameId);
 }
