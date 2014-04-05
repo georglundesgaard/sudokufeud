@@ -13,12 +13,11 @@ import com.hazelcast.core.IMap;
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public abstract class AbstractHazelcastRepository<T extends Identifiable> implements Repository<T> {
 
-	@Autowired
-	protected HazelcastInstance hazelcastInstance;
-
 	private final Class<T> objectType;
 	private final Logger logger;
 	private final String repositoryMapId;
+	@Autowired
+	protected HazelcastInstance hazelcastInstance;
 
 	public AbstractHazelcastRepository(Class<T> objectType, Logger logger, String repositoryMapId) {
 		this.objectType = objectType;
@@ -31,11 +30,12 @@ public abstract class AbstractHazelcastRepository<T extends Identifiable> implem
 	}
 
 	@Override
-	public void create(T object) {
+	public T create(T object) {
 		String id = object.getId();
 		IMap<String, T> repositoryMap = getRepositoryMap();
 		repositoryMap.put(id, object);
 		logger.debug("{} created with id <{}>", objectType.getSimpleName(), id);
+		return object;
 	}
 
 	@Override
@@ -48,11 +48,12 @@ public abstract class AbstractHazelcastRepository<T extends Identifiable> implem
 	}
 
 	@Override
-	public void update(T updatedObject) {
+	public T update(T updatedObject) {
 		IMap<String, T> repositoryMap = getRepositoryMap();
 		String id = updatedObject.getId();
 		repositoryMap.put(id, updatedObject);
 		logger.debug("{} with id <{}> updated", objectType.getSimpleName(), id);
+		return updatedObject;
 	}
 
 	@Override

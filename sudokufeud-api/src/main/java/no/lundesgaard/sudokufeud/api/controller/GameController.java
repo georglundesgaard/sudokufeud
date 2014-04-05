@@ -1,24 +1,34 @@
 package no.lundesgaard.sudokufeud.api.controller;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.maxBy;
+import static java.util.stream.Collectors.toList;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import no.lundesgaard.sudokufeud.api.SudokuFeudApiConfiguration;
+import no.lundesgaard.sudokufeud.api.mapper.JsonGameMapper;
+import no.lundesgaard.sudokufeud.api.model.JsonError;
 import no.lundesgaard.sudokufeud.api.model.JsonGame;
 import no.lundesgaard.sudokufeud.api.model.JsonGameInvitation;
 import no.lundesgaard.sudokufeud.api.model.JsonMove;
 import no.lundesgaard.sudokufeud.api.model.JsonNewGame;
 import no.lundesgaard.sudokufeud.api.model.JsonRound;
-import no.lundesgaard.sudokufeud.model.Board;
+import no.lundesgaard.sudokufeud.constants.Difficulty;
 import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.model.Move;
-import no.lundesgaard.sudokufeud.model.Player;
+import no.lundesgaard.sudokufeud.repository.exception.GameNotFoundException;
+import no.lundesgaard.sudokufeud.repository.exception.UnknownUserIdException;
 import no.lundesgaard.sudokufeud.service.GameService;
+import no.lundesgaard.sudokufeud.service.IllegalGameStateException;
 import no.lundesgaard.sudokufeud.service.ProfileService;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,270 +36,169 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping(GameController.GAMES_PATH)
 public class GameController {
-    
-    public static final String GAMES_PATH = SudokuFeudApiConfiguration.ROOT_PATH + "/games";
-    public static final String GAME_ID = "gameId";
-    public static final String GAME_PATH = "{" + GAME_ID + "}";
-    public static final String ROUNDS_PATH = GAME_PATH + "/rounds";
-    public static final String ROUND_ID = "roundId";
-    public static final String ROUND_PATH = "{" + ROUND_ID + "}";
+	public static final String GAMES_PATH = SudokuFeudApiConfiguration.ROOT_PATH + "/games";
+	public static final String GAME_ID = "gameId";
+	public static final String GAME_PATH = "{" + GAME_ID + "}";
+	public static final String ROUNDS_PATH = GAME_PATH + "/rounds";
+	public static final String ROUND_ID = "roundId";
+	public static final String ROUND_PATH = "{" + ROUND_ID + "}";
+	private static final Logger LOGGER = LoggerFactory.getLogger(GameController.class);
+	@Autowired
+	private GameService gameService;
 
-    @Autowired
-    private GameService gameService;
+	@Autowired
+	private ProfileService profileService;
 
-    @Autowired
-    private ProfileService profileService;
-    
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<JsonGame>> getGames(@AuthenticationPrincipal String userId) {
-        String profileId = profileService.getProfileIdByUserId(userId);
-        List<Game> games = gameService.getGames(profileId);
+	@RequestMapping(method = RequestMethod.GET)
+	public ResponseEntity<List<JsonGame>> getGames(@AuthenticationPrincipal String userId) {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        DateTime lastModified = null;
-        for (Game game : games) {
-            if (lastModified == null || lastModified.isBefore(game.getLastModified())) {
-                lastModified = game.getLastModified();
-            }
-        }
+		List<Game> games = gameService.getGames(userId);
+		if (games.size() == 0) {
+			return new ResponseEntity<>(Collections.emptyList(), httpHeaders, HttpStatus.OK);
+		}
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        if (lastModified != null) {
-            httpHeaders.setLastModified(lastModified.getMillis());
-        }
-        
-        List<JsonGame> jsonGames = toJsonGames(games, profileId);
-        return new ResponseEntity<>(jsonGames, httpHeaders, HttpStatus.OK);
-    }
-    
-    @RequestMapping(value = GAME_PATH, method = RequestMethod.GET)
-    public ResponseEntity<JsonGame> getGame(
-            @AuthenticationPrincipal String userId, 
-            @PathVariable(GAME_ID) String gameId) {
+		Optional<DateTime> optionalLastModified = games.stream().map(Game::getLastModified).collect(maxBy((d1, d2) -> d1.compareTo(d2)));
+		optionalLastModified.ifPresent(lastModified -> httpHeaders.setLastModified(lastModified.getMillis()));
 
-        String profileId = profileService.getProfileIdByUserId(userId);
-        Game game = gameService.getGame(profileId, gameId);
-        
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        httpHeaders.setLastModified(game.getLastModified().getMillis());
-        
-        JsonGame jsonGame = toJsonGame(game, profileId);
-        return new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
-    }
+		JsonGameMapper mapper = new JsonGameMapper(userId, profileService);
+		List<JsonGame> jsonGames = games
+				.stream()
+				.map(mapper::from)
+				.collect(toList());
 
-    @RequestMapping(value = GAME_PATH, method = RequestMethod.PUT)
-    public ResponseEntity<?> acceptDeclineInvitation(
-            @AuthenticationPrincipal String userId,
-            @PathVariable(GAME_ID) String gameId,
-            @RequestBody JsonGameInvitation jsonGameInvitation) {
+		return new ResponseEntity<>(jsonGames, httpHeaders, HttpStatus.OK);
+	}
 
-        String profileId = profileService.getProfileIdByUserId(userId);
-        if (jsonGameInvitation.getResponse() == JsonGameInvitation.Response.ACCEPT) {
-            Game game = gameService.acceptInvitation(profileId, gameId);
+	@RequestMapping(value = GAME_PATH, method = RequestMethod.GET)
+	public ResponseEntity<JsonGame> getGame(@AuthenticationPrincipal String userId, @PathVariable(GAME_ID) String gameId) {
 
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		Game game = gameService.getGame(userId, gameId);
 
-            JsonGame jsonGame = toJsonGame(game, profileId);
-            return new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
-        } else {
-            gameService.declineInvitation(profileId, gameId);
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		httpHeaders.setLastModified(game.getLastModified().getMillis());
 
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-    }
+		JsonGame jsonGame = new JsonGameMapper(userId, profileService).from(game);
+		return new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
+	}
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> createGame(
-            @AuthenticationPrincipal String userId,
-            @RequestBody JsonNewGame jsonNewGame, 
-            UriComponentsBuilder uriComponentsBuilder) {
+	@RequestMapping(value = GAME_PATH, method = RequestMethod.PUT)
+	public ResponseEntity<?> acceptDeclineInvitation(
+			@AuthenticationPrincipal String userId,
+			@PathVariable(GAME_ID) String gameId,
+			@RequestBody JsonGameInvitation jsonGameInvitation) {
 
-        String profileId = profileService.getProfileIdByUserId(userId);
-        Board.Difficulty difficulty = Board.Difficulty.valueOf(jsonNewGame.getDifficulty());
-        String opponentUserId = jsonNewGame.getOpponent();
-        String opponentId = profileService.getProfileIdByUserId(opponentUserId);
-        String gameId = gameService.createGame(profileId, opponentId, difficulty);
+		if (jsonGameInvitation.getResponse() == JsonGameInvitation.Response.ACCEPT) {
+			Game game = gameService.acceptInvitation(userId, gameId);
+			HttpHeaders httpHeaders = new HttpHeaders();
+			httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+			JsonGame jsonGame = new JsonGameMapper(userId, profileService).from(game);
+			return new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
+		} else {
+			gameService.declineInvitation(userId, gameId);
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
+	}
 
-        URI gameLoction = uriComponentsBuilder
-                .path(GAME_PATH)
-                .buildAndExpand(gameId)
-                .toUri();
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(gameLoction);
-        
-        return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
-    }
+	@RequestMapping(method = RequestMethod.POST)
+	public ResponseEntity<?> createGame(@AuthenticationPrincipal String userId, @RequestBody JsonNewGame jsonNewGame, UriComponentsBuilder uriComponentsBuilder) {
+		Difficulty difficulty = Difficulty.valueOf(jsonNewGame.getDifficulty());
+		String opponentUserId = jsonNewGame.getOpponent();
+		String gameId = gameService.createGame(userId, opponentUserId, difficulty);
+		URI gameLoction = uriComponentsBuilder.path(GAME_PATH).buildAndExpand(gameId).toUri();
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setLocation(gameLoction);
+		return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
+	}
 
-    @RequestMapping(value = ROUNDS_PATH, method = RequestMethod.POST)
-    public ResponseEntity<?> executeRound(
-            @AuthenticationPrincipal String userId,
-            @PathVariable(GAME_ID) String gameId,
-            @RequestBody JsonRound jsonRound,
-            UriComponentsBuilder uriComponentsBuilder) {
+	@RequestMapping(value = ROUNDS_PATH, method = RequestMethod.POST)
+	public ResponseEntity<?> executeRound(
+			@AuthenticationPrincipal String userId,
+			@PathVariable(GAME_ID) String gameId, @RequestBody JsonRound jsonRound,
+			UriComponentsBuilder uriComponentsBuilder) {
 
-        String profileId = profileService.getProfileIdByUserId(userId);
-        Move[] moves = toMoves(jsonRound);
-        int roundId = gameService.executeRound(profileId, gameId, moves);
+		Move[] moves = toMoves(jsonRound);
+		int roundId = gameService.executeRound(userId, gameId, moves);
+		URI roundLocation = uriComponentsBuilder.path(ROUND_PATH).buildAndExpand(roundId).toUri();
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setLocation(roundLocation);
+		return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
+	}
 
-        URI roundLocation = uriComponentsBuilder
-                .path(ROUND_PATH)
-                .buildAndExpand(roundId)
-                .toUri();
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(roundLocation);
-        
-        return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
-    }
+	@RequestMapping(value = ROUNDS_PATH, method = RequestMethod.GET)
+	public List<JsonRound> getRounds(@AuthenticationPrincipal String userId, @PathVariable(GAME_ID) String gameId) {
+		// TODO: implement
+		return asList();
+	}
 
-    @RequestMapping(value = ROUNDS_PATH, method = RequestMethod.GET)
-    public List<JsonRound> getRounds(
-            @AuthenticationPrincipal String userId,
-            @PathVariable(GAME_ID) String gameId) {
-        // TODO: implement
-        return asList();
-    }
-    
-    @RequestMapping(value = ROUNDS_PATH + "/" + ROUND_PATH, method = RequestMethod.GET)
-    public JsonRound getRound(
-            @AuthenticationPrincipal String userId,
-            @PathVariable(GAME_ID) String gameId,
-            @PathVariable(ROUND_ID) int roundId) {
-        // TODO: implement
-        return new JsonRound();
-    }
+	@RequestMapping(value = ROUNDS_PATH + "/" + ROUND_PATH, method = RequestMethod.GET)
+	public JsonRound getRound(@AuthenticationPrincipal String userId, @PathVariable(GAME_ID) String gameId, @PathVariable(ROUND_ID) int roundId) {
+		// TODO: implement
+		return new JsonRound();
+	}
 
-    private List<JsonGame> toJsonGames(List<Game> games, String profileId) {
-        JsonGame[] jsonGames = new JsonGame[games.size()];
-        for (int i = 0; i < games.size(); i++) {
-            jsonGames[i] = toJsonGame(games.get(i), profileId);
-        }
-        return asList(jsonGames);
-    }
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	@ExceptionHandler(GameNotFoundException.class)
+	@ResponseBody
+	public JsonError handleGameNotFoundException(GameNotFoundException e) {
+		return jsonError(e, HttpStatus.NOT_FOUND);
+	}
 
-    private JsonGame toJsonGame(Game game, String profileId) {
-        int score;
-        int opponentScore;
-        int[] availablePieces;
-        String opponentProfileId;
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(IllegalGameStateException.class)
+	@ResponseBody
+	public JsonError handleIllegalGameStateException(IllegalGameStateException e) {
+		return jsonError(e, HttpStatus.BAD_REQUEST);
+	}
 
-        if (game.getPlayer1().getPlayerId().equals(profileId)) {
-            score = game.getPlayer1().getScore();
-            opponentScore = game.getPlayer2().getScore();
-            availablePieces = game.getPlayer1().getAvailablePieces();
-            opponentProfileId = game.getPlayer2().getPlayerId();
-        } else {
-            score = game.getPlayer2().getScore();
-            opponentScore = game.getPlayer1().getScore();
-            availablePieces = game.getPlayer2().getAvailablePieces();
-            opponentProfileId = game.getPlayer1().getPlayerId();
-        }
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(UnknownUserIdException.class)
+	@ResponseBody
+	public JsonError handleUnknownUserIdException(UnknownUserIdException e) {
+		return jsonError(e, HttpStatus.BAD_REQUEST);
+	}
 
-        String opponentUserId = profileService.getProfile(opponentProfileId).getUserId();
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ExceptionHandler(Exception.class)
+	@ResponseBody
+	public JsonError handleException(Exception e) {
+		return jsonError(e, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 
-        String currentPlayerUserId = null;
-        Player currentPlayer = game.getCurrentPlayer();
-        if (currentPlayer != null) {
-            String currentPlayerId = currentPlayer.getPlayerId();
-            currentPlayerUserId = profileService.getProfile(currentPlayerId).getUserId();
-        }
+	private JsonError jsonError(Exception e, HttpStatus status) {
+		LOGGER.debug("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+		return new JsonError(status, e.getMessage());
+	}
 
-        Boolean won;
-        if (game.getWinner() != null && game.getWinner().getPlayerId().equals(profileId)) {
-            won = true;
-        } else if (game.getLoser() != null && game.getLoser().getPlayerId().equals(profileId)) {
-            won = false;
-        } else {
-            won = null;
-        }
+	private Move[] toMoves(JsonRound jsonRound) {
+		JsonMove[] jsonMoves = jsonRound.getMoves();
+		if (jsonMoves == null || jsonMoves.length == 0) {
+			return new Move[0];
+		}
 
-        JsonGame jsonGame = new JsonGame();
-        jsonGame.setId(game.getId());
-        jsonGame.setScore(score);
-        jsonGame.setAvailablePieces(availablePieces);
-        jsonGame.setOpponentUserId(opponentUserId);
-        jsonGame.setOpponentScore(opponentScore);
-        jsonGame.setState(toJsonGameState(game));
-        jsonGame.setStatus(toJsonGameStatus(
-                game.getState(),
-                profileId.equals(game.getPlayer1().getPlayerId()),
-                currentPlayer != null && profileId.equals(currentPlayer.getPlayerId()),
-                won
-        ));
-        jsonGame.setCurrentPlayer(currentPlayerUserId);
-        if (game.getState() != Game.State.NEW) {
-            jsonGame.setBoard(game.getBoard().toIntegerArray());
-        }
-        jsonGame.setDifficulty(game.getBoard().getDifficulty().toString());
-        jsonGame.setCreated(game.getCreated());
+		Move[] moves = new Move[jsonMoves.length];
+		for (int i = 0; i < jsonMoves.length; i++) {
+			moves[i] = toMove(jsonMoves[i]);
+		}
 
-        return jsonGame;
-    }
+		return moves;
+	}
 
-    private JsonGame.Status toJsonGameStatus(
-            Game.State gameState,
-            boolean creator,
-            boolean currentPlayer,
-            Boolean won) {
-        
-        switch (gameState) {
-            case NEW:
-                if (creator) {
-                    return JsonGame.Status.WAITING;
-                }
-                return JsonGame.Status.INVITATION;
-            case RUNNING:
-                if (currentPlayer) {
-                    return JsonGame.Status.READY;
-                }
-                return JsonGame.Status.WAITING;
-            default:
-                if (won == null) {
-                    return JsonGame.Status.TIED;
-                }
-                if (won) {
-                    return JsonGame.Status.WON;
-                }
-                return JsonGame.Status.LOST;
-        }
-    }
-
-    private JsonGame.State toJsonGameState(Game game) {
-        switch (game.getState()) {
-            case NEW:
-                return JsonGame.State.NEW;
-            case RUNNING:
-                return JsonGame.State.RUNNING;
-            default:
-                return JsonGame.State.COMPLETED;
-        }
-    }
-
-    private Move[] toMoves(JsonRound jsonRound) {
-        JsonMove[] jsonMoves = jsonRound.getMoves();
-        if (jsonMoves == null || jsonMoves.length == 0) {
-            return new Move[0];
-        }
-
-        Move[] moves = new Move[jsonMoves.length];
-        for (int i = 0; i < jsonMoves.length; i++) {
-            moves[i] = toMove(jsonMoves[i]);
-        }
-
-        return moves;
-    }
-
-    private Move toMove(JsonMove jsonMove) {
-        return new Move(jsonMove.getX(), jsonMove.getY(), jsonMove.getPiece());
-    }
+	private Move toMove(JsonMove jsonMove) {
+		return new Move(jsonMove.getX(), jsonMove.getY(), jsonMove.getPiece());
+	}
 }

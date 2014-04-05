@@ -3,11 +3,11 @@ package no.lundesgaard.sudokufeud.repository;
 import no.lundesgaard.sudokufeud.model.Identifiable;
 
 public interface Repository<T extends Identifiable> {
-	void create(T t);
+	T create(T t);
 
 	T read(String id);
 
-	void update(T t);
+	T update(T t);
 
 	void delete(String id);
 }
