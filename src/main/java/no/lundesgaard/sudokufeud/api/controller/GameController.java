@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,9 +25,7 @@ import no.lundesgaard.sudokufeud.repository.exception.GameNotFoundException;
 import no.lundesgaard.sudokufeud.repository.exception.UnknownUserIdException;
 import no.lundesgaard.sudokufeud.service.GameService;
 import no.lundesgaard.sudokufeud.service.IllegalGameStateException;
-import no.lundesgaard.sudokufeud.service.ProfileService;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,18 +47,20 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Controller
 @RequestMapping(GameController.GAMES_PATH)
 public class GameController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(GameController.class);
+	
 	public static final String GAMES_PATH = SudokuFeudConfiguration.ROOT_PATH + "/games";
 	public static final String GAME_ID = "gameId";
 	public static final String GAME_PATH = "{" + GAME_ID + "}";
 	public static final String ROUNDS_PATH = GAME_PATH + "/rounds";
 	public static final String ROUND_ID = "roundId";
 	public static final String ROUND_PATH = "{" + ROUND_ID + "}";
-	private static final Logger LOGGER = LoggerFactory.getLogger(GameController.class);
+	
 	@Autowired
 	private GameService gameService;
 
-	@Autowired
-	private ProfileService profileService;
+//	@Autowired
+//	private ProfileService profileService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<JsonGame>> getGames(@AuthenticationPrincipal String userId) {
@@ -71,10 +72,13 @@ public class GameController {
 			return new ResponseEntity<>(Collections.emptyList(), httpHeaders, HttpStatus.OK);
 		}
 
-		Optional<DateTime> optionalLastModified = games.stream().map(Game::getLastModified).collect(maxBy((d1, d2) -> d1.compareTo(d2)));
-		optionalLastModified.ifPresent(lastModified -> httpHeaders.setLastModified(lastModified.getMillis()));
+		Optional<Date> optionalLastModified = games
+				.stream()
+				.map(Game::getLastModified)
+				.collect(maxBy((d1, d2) -> d1.compareTo(d2)));
+		optionalLastModified.ifPresent(lastModified -> httpHeaders.setLastModified(lastModified.getTime()));
 
-		JsonGameMapper mapper = new JsonGameMapper(userId, profileService);
+		JsonGameMapper mapper = new JsonGameMapper(userId);
 		List<JsonGame> jsonGames = games
 				.stream()
 				.map(mapper::from)
@@ -84,29 +88,29 @@ public class GameController {
 	}
 
 	@RequestMapping(value = GAME_PATH, method = RequestMethod.GET)
-	public ResponseEntity<JsonGame> getGame(@AuthenticationPrincipal String userId, @PathVariable(GAME_ID) String gameId) {
+	public ResponseEntity<JsonGame> getGame(@AuthenticationPrincipal String userId, @PathVariable(GAME_ID) long gameId) {
 
 		Game game = gameService.getGame(userId, gameId);
 
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-		httpHeaders.setLastModified(game.getLastModified().getMillis());
+		httpHeaders.setLastModified(game.getLastModified().getTime());
 
-		JsonGame jsonGame = new JsonGameMapper(userId, profileService).from(game);
+		JsonGame jsonGame = new JsonGameMapper(userId).from(game);
 		return new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = GAME_PATH, method = RequestMethod.PUT)
 	public ResponseEntity<?> acceptDeclineInvitation(
 			@AuthenticationPrincipal String userId,
-			@PathVariable(GAME_ID) String gameId,
+			@PathVariable(GAME_ID) long gameId,
 			@RequestBody JsonGameInvitation jsonGameInvitation) {
 
 		if (jsonGameInvitation.getResponse() == JsonGameInvitation.Response.ACCEPT) {
 			Game game = gameService.acceptInvitation(userId, gameId);
 			HttpHeaders httpHeaders = new HttpHeaders();
 			httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-			JsonGame jsonGame = new JsonGameMapper(userId, profileService).from(game);
+			JsonGame jsonGame = new JsonGameMapper(userId).from(game);
 			return new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
 		} else {
 			gameService.declineInvitation(userId, gameId);
@@ -118,8 +122,13 @@ public class GameController {
 	public ResponseEntity<?> createGame(@AuthenticationPrincipal String userId, @RequestBody JsonNewGame jsonNewGame, UriComponentsBuilder uriComponentsBuilder) {
 		Difficulty difficulty = Difficulty.valueOf(jsonNewGame.getDifficulty());
 		String opponentUserId = jsonNewGame.getOpponent();
-		String gameId = gameService.createGame(userId, opponentUserId, difficulty);
-		URI gameLoction = uriComponentsBuilder.path(GAME_PATH).buildAndExpand(gameId).toUri();
+		long gameId = gameService.createGame(userId, opponentUserId, difficulty);
+		URI gameLoction = uriComponentsBuilder
+				.path(DefaultController.DEFAULT_PATH)
+				.path(GAMES_PATH)
+				.path(GAME_PATH)
+				.buildAndExpand(gameId)
+				.toUri();
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setLocation(gameLoction);
 		return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
@@ -128,7 +137,8 @@ public class GameController {
 	@RequestMapping(value = ROUNDS_PATH, method = RequestMethod.POST)
 	public ResponseEntity<?> executeRound(
 			@AuthenticationPrincipal String userId,
-			@PathVariable(GAME_ID) String gameId, @RequestBody JsonRound jsonRound,
+			@PathVariable(GAME_ID) long gameId, 
+			@RequestBody JsonRound jsonRound,
 			UriComponentsBuilder uriComponentsBuilder) {
 
 		Move[] moves = toMoves(jsonRound);
@@ -180,7 +190,11 @@ public class GameController {
 	}
 
 	private JsonError jsonError(Exception e, HttpStatus status) {
-		LOGGER.debug("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+		if (status == HttpStatus.INTERNAL_SERVER_ERROR) {
+			LOGGER.error("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+		} else {
+			LOGGER.debug("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+		}
 		return new JsonError(status, e.getMessage());
 	}
 

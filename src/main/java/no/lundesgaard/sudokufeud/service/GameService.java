@@ -8,14 +8,9 @@ import no.lundesgaard.sudokufeud.model.Move;
 
 public interface GameService {
 	List<Game> getGames(String playerUserId);
-
-	Game getGame(String playerUserId, String gameId);
-
-	String createGame(String playerUserId1, String playerUserId2, Difficulty difficulty);
-
-	Game acceptInvitation(String playerUserId, String gameId);
-
-	void declineInvitation(String playerUserId, String gameId);
-
-	int executeRound(String playerUserId, String gameId, Move[] moves);
+	Game getGame(String playerUserId, long gameId);
+	long createGame(String playerUserId1, String playerUserId2, Difficulty difficulty);
+	Game acceptInvitation(String playerUserId, long gameId);
+	void declineInvitation(String playerUserId, long gameId);
+	int executeRound(String playerUserId, long gameId, Move[] moves);
 }

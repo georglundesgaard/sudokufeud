@@ -2,67 +2,82 @@ package no.lundesgaard.sudokufeud.model;
 
 import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
 
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.NaturalId;
 
-public class Player implements Serializable {
-    private static final long serialVersionUID = -4551882781278736324L;
+@Entity
+public class Player extends BaseEntity {
+	private static final long serialVersionUID = -4551882781278736324L;
 
-    private final long playerId;
-    private final int score;
-    private final int[] availablePieces;
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "game_id")
+	private Game game;
 
-    public Player(long playerId, int score, int[] availablePieces) {
-        this.playerId = playerId;
-        this.score = score;
-        this.availablePieces = copyOf(availablePieces);
-    }
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "profile_id")
+	private Profile profile;
 
-    public long getPlayerId() {
-        return playerId;
-    }
+	@Column(nullable = false)
+	private int score;
 
-    public int getScore() {
-        return score;
-    }
+	@Column(nullable = true)
+	private int[] availablePieces;
 
-    public int[] getAvailablePieces() {
-        return copyOf(availablePieces);
-    }
+	public Player() {
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null) return false;
-        if (o == this) return true;
-        if (o.getClass() != this.getClass()) return false;
+	public Player(Profile profile) {
+		this.profile = profile;
+	}
 
-        Player other = (Player) o;
-        return new EqualsBuilder()
-                .append(this.playerId, other.playerId)
-                .append(this.score, other.score)
-                .append(this.availablePieces, other.availablePieces)
-                .isEquals();
-    }
+	public Game getGame() {
+		return game;
+	}
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(13, 23)
-                .append(this.playerId)
-                .append(this.score)
-                .append(this.availablePieces)
-                .toHashCode();
-    }
+	public void setGame(Game game) {
+		this.game = game;
+	}
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("playerId", playerId)
-                .append("score", score)
-                .append("availablePieces", availablePieces)
-                .toString();
-    }
+	public Profile getProfile() {
+		return profile;
+	}
+
+	public void setProfile(Profile profile) {
+		this.profile = profile;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
+	public int[] getAvailablePieces() {
+		return copyOf(availablePieces);
+	}
+
+	public void setAvailablePieces(int[] availablePieces) {
+		this.availablePieces = availablePieces;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.appendSuper(super.toString())
+				.append("gameId", game.getId())
+				.append("profileId", profile.getId())
+				.append("score", score)
+				.append("availablePieces", availablePieces)
+				.toString();
+	}
 }

@@ -11,6 +11,8 @@ import no.lundesgaard.sudokufeud.engine.GameEngine;
 import no.lundesgaard.sudokufeud.model.Board;
 import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.model.Move;
+import no.lundesgaard.sudokufeud.model.Player;
+import no.lundesgaard.sudokufeud.model.PlayerId;
 import no.lundesgaard.sudokufeud.model.Profile;
 import no.lundesgaard.sudokufeud.repository.GameRepository;
 import no.lundesgaard.sudokufeud.repository.ProfileRepository;
@@ -32,6 +34,7 @@ public class StandardGameService implements GameService {
 	@Autowired
 	private GameEngine gameEngine;
 
+	@SuppressWarnings("SpringJavaAutowiringInspection")
 	@Autowired
 	private GameRepository gameRepository;
 
@@ -40,13 +43,13 @@ public class StandardGameService implements GameService {
 	private ProfileRepository profileRepository;
 
 	@Override
-	public String createGame(String playerUserId1, String playerUserId2, Difficulty difficulty) {
+	public long createGame(String playerUserId1, String playerUserId2, Difficulty difficulty) {
 		Profile player1 = profileRepository.findByUserId(playerUserId1);
 		Profile player2 = profileRepository.findByUserId(playerUserId2);
 
 		Board board = boardGenerator.generateBoard(difficulty);
 		Game game = gameEngine.createGame(player1, player2, board);
-		game = gameRepository.create(game);
+		game = gameRepository.save(game);
 
 		return game.getId();
 	}
@@ -54,33 +57,31 @@ public class StandardGameService implements GameService {
 	@Override
 	public List<Game> getGames(String playerUserId) throws UnknownUserIdException {
 		Profile player = profileRepository.findByUserId(playerUserId);
-		return gameRepository.findAllByPlayer(player);
+		return player.findGames();
 	}
 
 	@Override
-	public Game getGame(String playerUserId, String gameId) throws UnknownUserIdException {
+	public Game getGame(String playerUserId, long gameId) throws UnknownUserIdException {
 		Profile player = profileRepository.findByUserId(playerUserId);
-		return gameRepository.findOneByPlayer(player, gameId);
+		return player.findGame(gameId);
 	}
 
 	@Override
-	public Game acceptInvitation(String playerUserId, String gameId) throws UnknownUserIdException, IllegalGameStateException {
+	public Game acceptInvitation(String playerUserId, long gameId) throws UnknownUserIdException, IllegalGameStateException {
 		Profile player = profileRepository.findByUserId(playerUserId);
-		Game game = gameRepository.findOneByPlayer(player, gameId);
+		Game game = player.findGame(gameId);
 		if (game.getInvitedPlayerId() == player.getId()) {
-			Profile startingPlayer = profileRepository.findOne(game.getPlayerId1());
-			game = gameEngine.startGame(game, startingPlayer);
-			gameRepository.update(game);
-			return game;
+			String startingPlayerUserId = game.getPlayer1().getProfile().getUserId();
+			return gameEngine.startGame(game, startingPlayerUserId);
 		}
 
 		throw new IllegalGameStateException("not an invitation");
 	}
 
 	@Override
-	public void declineInvitation(String playerUserId, String gameId) throws UnknownUserIdException, IllegalGameStateException {
+	public void declineInvitation(String playerUserId, long gameId) throws UnknownUserIdException, IllegalGameStateException {
 		Profile player = profileRepository.findByUserId(playerUserId);
-		Game game = gameRepository.findOneByPlayer(player, gameId);
+		Game game = player.findGame(gameId);
 		if (game.getInvitedPlayerId() == player.getId()) {
 			gameRepository.delete(game.getId());
 		}
@@ -89,16 +90,22 @@ public class StandardGameService implements GameService {
 	}
 
 	@Override
-	public int executeRound(String playerUserId, String gameId, Move[] moves) throws IllegalGameStateException {
-		Profile player = profileRepository.findByUserId(playerUserId);
-		Game game = gameRepository.findOneByPlayer(player, gameId);
+	public int executeRound(String playerUserId, long gameId, Move[] moves) throws IllegalGameStateException {
+		Profile playerProfile = profileRepository.findByUserId(playerUserId);
+		Game game = playerProfile.findGame(gameId);
 
-		if (!player.getId().equals(game.getCurrentPlayerId())) {
-			throw new IllegalGameStateException(format("player <%s> is not current player", player.getUserId()));
+		Player currentPlayer;
+		if (game.getCurrentPlayer() == PlayerId.PLAYER_ONE) {
+			currentPlayer = game.getPlayer1();
+		} else {
+			currentPlayer = game.getPlayer2();
+		}
+		if (!currentPlayer.getProfile().getUserId().equals(playerUserId)) {
+			throw new IllegalGameStateException(format("player <%s> is not current player", currentPlayer.getProfile().getUserId()));
 		}
 
 		Status status;
-		if (game.getPlayerId1() == player.getId()) {
+		if (game.getCurrentPlayer() == PlayerId.PLAYER_ONE) {
 			status = game.getStatusForPlayer1();
 		} else {
 			status = game.getStatusForPlayer2();
@@ -106,8 +113,7 @@ public class StandardGameService implements GameService {
 
 		if (status == Status.READY) {
 			game = gameEngine.executeRound(game, moves);
-			gameRepository.update(game);
-			return game.getRounds().length - 1;
+			return game.getRounds().size() - 1;
 		}
 
 		throw new IllegalGameStateException(format("game with id <%s> is not running", gameId));

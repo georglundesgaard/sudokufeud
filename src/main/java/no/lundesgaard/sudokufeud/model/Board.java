@@ -1,38 +1,55 @@
 package no.lundesgaard.sudokufeud.model;
 
+import static java.lang.String.format;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
 import no.lundesgaard.sudokufeud.constants.Difficulty;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
-public class Board implements Serializable {
+@Entity
+public class Board extends BaseEntity {
 	private static final long serialVersionUID = 5882709926255690461L;
 
 	private static final int WIDTH = 9;
 	private static final int HEIGHT = 9;
 	private static final int SQUARE_SIZE = 9;
 
-	private final Difficulty difficulty;
-	private final Integer[][] cells;
-	private final Statistics statistics;
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private Difficulty difficulty;
+
+	@OneToMany(mappedBy = "board", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	private List<Cell> cells;
+
+	public Board() {
+	}
 
 	public Board(Difficulty difficulty, Integer... pieces) {
 		this.difficulty = difficulty;
-		this.cells = new Integer[WIDTH][HEIGHT];
+		this.cells = new ArrayList<>();
 
 		placePieces(pieces);
-		this.statistics = calculateStatistics();
 	}
 
 	private void placePieces(Integer[] pieces) {
 		for (int i = 0; i < pieces.length; i++) {
 			int x = i % 9;
 			int y = i / 9;
-			cells[x][y] = pieces[i];
+			Cell cell = new Cell(x, y, pieces[i]);
+			cell.setBoard(this);
+			cells.add(cell);
 		}
 	}
 
@@ -40,29 +57,32 @@ public class Board implements Serializable {
 		return difficulty;
 	}
 
-	public Board placePiece(int x, int y, int piece) {
-		Integer[] pieces = new Integer[WIDTH * HEIGHT];
-		for (int i = 0; i < WIDTH; i++) {
-			for (int j = 0; j < HEIGHT; j++) {
-				int index = i + j * WIDTH;
-				if (x == i && y == j) {
-					if (cells[x][y] != null) {
-						throw new BoardException("cell(" + x + "," + y + ") is occupied");
-					}
-					pieces[index] = piece;
-				} else {
-					pieces[index] = cells[i][j];
+	public void setDifficulty(Difficulty difficulty) {
+		this.difficulty = difficulty;
+	}
+
+	public List<Cell> getCells() {
+		return cells;
+	}
+
+	public void setCells(List<Cell> cells) {
+		this.cells = cells;
+	}
+
+	public void placePiece(int x, int y, int piece) {
+		for (Cell cell : cells) {
+			if (cell.getX() == x && cell.getY() == y) {
+				if (cell.isOccupied()) {
+					throw new BoardException(format("cell(%d,%d) is occupied", x, y));
 				}
+				cell.setPiece(piece);
+				return;
 			}
 		}
-		return new Board(this.difficulty, pieces);
+		throw new BoardException(format("Unknown cell (%d,%d)", x, y));
 	}
 
 	public Statistics getStatistics() {
-		return statistics;
-	}
-
-	private Statistics calculateStatistics() {
 		int occupiedColumns = 0;
 		int occupiedRows = 0;
 		int occupiedSquares = 0;
@@ -71,62 +91,38 @@ public class Board implements Serializable {
 		boolean[] rows = new boolean[HEIGHT];
 		boolean[] squares = new boolean[WIDTH * HEIGHT / SQUARE_SIZE];
 
-		for (int x = 0; x < columns.length; x++) {
-			columns[x] = true;
-			for (int y = 0; y < rows.length; y++) {
-				if (x == 0) {
-					rows[y] = true;
-				}
-
-				columns[x] &= isCellOccupied(x, y);
-				rows[y] &= isCellOccupied(x, y);
-
-				if (x + 1 == WIDTH && rows[y]) {
-					occupiedRows++;
-				}
-
-				int s = x / 3 + (y / 3) * 3;
-				if (x % 3 == 0 && y % 3 == 0) {
-					squares[s] = true;
-				}
-				squares[s] &= isCellOccupied(x, y);
-
-				if (x % 3 == 2 && y % 3 == 2 && squares[s]) {
-					occupiedSquares++;
-				}
-			}
-
-			if (columns[x]) {
-				occupiedColumns++;
-			}
-		}
+		// TODO
+//		for (int x = 0; x < columns.length; x++) {
+//			columns[x] = true;
+//			for (int y = 0; y < rows.length; y++) {
+//				if (x == 0) {
+//					rows[y] = true;
+//				}
+//
+//				columns[x] &= isCellOccupied(x, y);
+//				rows[y] &= isCellOccupied(x, y);
+//
+//				if (x + 1 == WIDTH && rows[y]) {
+//					occupiedRows++;
+//				}
+//
+//				int s = x / 3 + (y / 3) * 3;
+//				if (x % 3 == 0 && y % 3 == 0) {
+//					squares[s] = true;
+//				}
+//				squares[s] &= isCellOccupied(x, y);
+//
+//				if (x % 3 == 2 && y % 3 == 2 && squares[s]) {
+//					occupiedSquares++;
+//				}
+//			}
+//
+//			if (columns[x]) {
+//				occupiedColumns++;
+//			}
+//		}
 
 		return new Statistics(occupiedColumns, occupiedRows, occupiedSquares);
-	}
-
-	public boolean isCellOccupied(int x, int y) {
-		return cells[x][y] != null;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o == null) return false;
-		if (o == this) return true;
-		if (o.getClass() != this.getClass()) return false;
-
-		Board other = (Board) o;
-		return new EqualsBuilder()
-				.append(this.difficulty, other.difficulty)
-				.append(this.cells, other.cells)
-				.isEquals();
-	}
-
-	@Override
-	public int hashCode() {
-		return new HashCodeBuilder(13, 23)
-				.append(this.difficulty)
-				.append(this.cells)
-				.toHashCode();
 	}
 
 	@Override
@@ -136,28 +132,29 @@ public class Board implements Serializable {
 				.append(this.difficulty)
 				.append('\n');
 
-		for (int y = 0; y < HEIGHT; y++) {
-			if (y % 3 == 0) {
-				output.append("+-------+-------+-------+\n");
-			}
-
-			for (int x = 0; x < WIDTH; x++) {
-				if (x % 3 == 0) {
-					output.append("| ");
-				}
-
-				Integer cell = cells[x][y];
-				if (cell == null) {
-					output.append('_');
-				} else {
-					output.append(cell);
-				}
-				output.append(' ');
-			}
-
-			output.append("|\n");
-		}
-		output.append("+-------+-------+-------+\n");
+		// TODO
+//		for (int y = 0; y < HEIGHT; y++) {
+//			if (y % 3 == 0) {
+//				output.append("+-------+-------+-------+\n");
+//			}
+//
+//			for (int x = 0; x < WIDTH; x++) {
+//				if (x % 3 == 0) {
+//					output.append("| ");
+//				}
+//
+//				Integer cell = cells[x][y];
+//				if (cell == null) {
+//					output.append('_');
+//				} else {
+//					output.append(cell);
+//				}
+//				output.append(' ');
+//			}
+//
+//			output.append("|\n");
+//		}
+//		output.append("+-------+-------+-------+\n");
 
 		return output.toString();
 	}
@@ -175,33 +172,34 @@ public class Board implements Serializable {
 				{9, 9, 9, 9, 9, 9, 9, 9, 9}
 		};
 
-		for (int y = 0; y < HEIGHT; y++) {
-			for (int x = 0; x < WIDTH; x++) {
-				Integer piece = cells[x][y];
-
-				for (int i = 0; i < WIDTH; i++) {
-					if (availablePieces[i][y] != null && availablePieces[i][y].equals(piece)) {
-						availablePieces[i][y] = null;
-						break;
-					}
-				}
-			}
-		}
-
-		List<Integer> resultList = new ArrayList<>();
-		for (int y = 0; y < HEIGHT; y++) {
-			for (int x = 0; x < WIDTH; x++) {
-				if (availablePieces[x][y] != null) {
-					resultList.add(availablePieces[x][y]);
-				}
-			}
-		}
-
-		int[] result = new int[resultList.size()];
-		for (int i = 0; i < resultList.size(); i++) {
-			result[i] = resultList.get(i);
-		}
-		return result;
+//		for (int y = 0; y < HEIGHT; y++) {
+//			for (int x = 0; x < WIDTH; x++) {
+//				Integer piece = cells[x][y];
+//
+//				for (int i = 0; i < WIDTH; i++) {
+//					if (availablePieces[i][y] != null && availablePieces[i][y].equals(piece)) {
+//						availablePieces[i][y] = null;
+//						break;
+//					}
+//				}
+//			}
+//		}
+//
+//		List<Integer> resultList = new ArrayList<>();
+//		for (int y = 0; y < HEIGHT; y++) {
+//			for (int x = 0; x < WIDTH; x++) {
+//				if (availablePieces[x][y] != null) {
+//					resultList.add(availablePieces[x][y]);
+//				}
+//			}
+//		}
+//
+//		int[] result = new int[resultList.size()];
+//		for (int i = 0; i < resultList.size(); i++) {
+//			result[i] = resultList.get(i);
+//		}
+//		return result;
+		return null;
 	}
 
 	public Integer[] toIntegerArray() {
@@ -209,7 +207,8 @@ public class Board implements Serializable {
 		for (int i = 0; i < pieces.length; i++) {
 			int x = i % 9;
 			int y = i / 9;
-			pieces[i] = cells[x][y];
+			// TODO
+//			pieces[i] = cells[x][y];
 		}
 		return pieces;
 	}

@@ -1,47 +1,48 @@
 package no.lundesgaard.sudokufeud.engine;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import no.lundesgaard.sudokufeud.model.Board;
 import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.model.Move;
 import no.lundesgaard.sudokufeud.model.Player;
+import no.lundesgaard.sudokufeud.model.PlayerId;
 import no.lundesgaard.sudokufeud.model.Profile;
 import no.lundesgaard.sudokufeud.model.Round;
 
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GameEngine {
 
-	public Game startGame(Game game, Profile playerProfile) {
+	public Game startGame(Game game, String playerUserId) {
+		Player player1 = game.getPlayer1();
+		Player player2 = game.getPlayer2();
 		Board board = game.getBoard();
 
 		int[] availablePieces = new int[7];
 		System.arraycopy(board.getAvailablePieces(), 0, availablePieces, 0, 7);
-		Player player1 = new Player(game.getPlayer1().getPlayerId(), 0, availablePieces);
+		player1.setAvailablePieces(availablePieces);
 
 		availablePieces = new int[7];
 		System.arraycopy(board.getAvailablePieces(), 7, availablePieces, 0, 7);
-		Player player2 = new Player(game.getPlayer2().getPlayerId(), 0, availablePieces);
+		player2.setAvailablePieces(availablePieces);
 
 		availablePieces = new int[board.getAvailablePieces().length - 14];
-		System.arraycopy(board.getAvailablePieces(), 14, availablePieces, 0, availablePieces.length);
+		game.setAvailablePieces(availablePieces);
 
-		return new Game(
-				game.getId(),
-				player1,
-				player2,
-				playerProfile.getId(),
-				board,
-				availablePieces,
-				null,
-				DateTime.now(),
-				null,
-				game.getCreated(),
-				DateTime.now());
+		
+		if (player1.getProfile().getUserId().equals(playerUserId)) {
+			game.setCurrentPlayer(PlayerId.PLAYER_ONE);
+		} else {
+			game.setCurrentPlayer(PlayerId.PLAYER_TWO);
+		}
+		
+		game.setStarted(new Date());
+
+		return game;
 	}
 
 	public Game createGame(Profile playerProfile1, Profile playerProfile2, Board board) {
@@ -54,11 +55,7 @@ public class GameEngine {
 		if (board == null) {
 			throw new GameEngineException("board required");
 		}
-
-		Player player1 = new Player(playerProfile1.getId(), 0, null);
-		Player player2 = new Player(playerProfile2.getId(), 0, null);
-
-		return new Game(Game.generateId(), player1, player2, null, board, board.getAvailablePieces(), null, null, null, DateTime.now(), null);
+		return new Game(new Player(playerProfile1), new Player(playerProfile2), board);
 	}
 
 	public Game executeRound(Game game, Move... movesInRound) {
@@ -69,7 +66,7 @@ public class GameEngine {
 		Player player1 = game.getPlayer1();
 		Player player2 = game.getPlayer2();
 
-		if (player1.equals(game.getCurrentPlayer())) {
+		if (game.getCurrentPlayer() == PlayerId.PLAYER_ONE) {
 			for (int piece : player1.getAvailablePieces()) {
 				playerPieceList.add(piece);
 			}
@@ -87,7 +84,7 @@ public class GameEngine {
 			if (!playerPieceList.contains(piece)) {
 				throw new GameEngineException("unavailable piece: " + piece);
 			}
-			board = board.placePiece(move.getX(), move.getY(), piece);
+			board.placePiece(move.getX(), move.getY(), piece);
 			playerPieceList.remove(piece);
 		}
 
@@ -99,12 +96,13 @@ public class GameEngine {
 			bonus += 10;
 		}
 
-		int scorePlayer1 = player1.getScore();
-		int scorePlayer2 = player2.getScore();
-		if (player1.equals(game.getCurrentPlayer())) {
-			scorePlayer1 += movesInRound.length + bonus;
+		int score;
+		if (game.getCurrentPlayer() == PlayerId.PLAYER_ONE) {
+			score = player1.getScore();
+			score += movesInRound.length + bonus;
 		} else {
-			scorePlayer2 += movesInRound.length + bonus;
+			score = player2.getScore();
+			score += movesInRound.length + bonus;
 		}
 
 		int[] availablePieces = game.getAvailablePieces();
@@ -119,51 +117,37 @@ public class GameEngine {
 		} else if (index >= availablePieces.length) {
 			availablePieces = new int[0];
 		}
+		game.setAvailablePieces(availablePieces);
 
 		int[] playerPieces = new int[playerPieceList.size()];
 		for (int i = 0; i < playerPieceList.size(); i++) {
 			playerPieces[i] = playerPieceList.get(i);
 		}
 
-		Round[] rounds = game.getRounds();
-		int roundIndex;
+		List<Round> rounds = game.getRounds();
 		if (rounds == null) {
-			rounds = new Round[1];
-			roundIndex = 0;
-		} else {
-			Round[] newRounds = new Round[rounds.length + 1];
-			System.arraycopy(rounds, 0, newRounds, 0, rounds.length);
-			rounds = newRounds;
-			roundIndex = rounds.length - 1;
+			rounds = new ArrayList<>();
 		}
-		rounds[roundIndex] = new Round(game.getCurrentPlayer(), movesInRound);
+		rounds.add(new Round(game.getCurrentPlayer(), movesInRound));
 
-		Long nextPlayerId;
-		if (player1.equals(game.getCurrentPlayer())) {
-			nextPlayerId = player2.getPlayerId();
-			player1 = new Player(player1.getPlayerId(), scorePlayer1, playerPieces);
+		PlayerId nextPlayerId;
+		if (game.getCurrentPlayer() == PlayerId.PLAYER_ONE) {
+			nextPlayerId = PlayerId.PLAYER_TWO;
+			player1.setScore(score);
+			player1.setAvailablePieces(playerPieces);
 		} else {
-			nextPlayerId = player1.getPlayerId();
-			player2 = new Player(player2.getPlayerId(), scorePlayer2, playerPieces);
+			nextPlayerId = PlayerId.PLAYER_ONE;
+			player2.setScore(score);
+			player2.setAvailablePieces(playerPieces);
 		}
 
-		DateTime completed = null;
 		if (player1.getAvailablePieces().length == 0 && player2.getAvailablePieces().length == 0) {
-			completed = DateTime.now();
-			nextPlayerId = null;
+			game.setCompleted(new Date());
+			game.setCurrentPlayer(null);
+		} else {
+			game.setCurrentPlayer(nextPlayerId);
 		}
 
-		return new Game(
-				game.getId(), 
-				player1, 
-				player2, 
-				nextPlayerId, 
-				board, 
-				availablePieces, 
-				rounds, 
-				game.getStarted(), 
-				completed, 
-				game.getCreated(),
-				DateTime.now());
+		return game;
 	}
 }

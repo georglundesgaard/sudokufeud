@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.joda.time.DateTime;
 
 public class JsonGame {
-	private String id;
+	private long id;
 	private int score;
 	private int[] availablePieces;
 	private String opponentUserId;
@@ -27,7 +27,7 @@ public class JsonGame {
 	}
 
 	public JsonGame(
-			String id,
+			long id,
 			int score,
 			int[] availablePieces,
 			String opponentUserId,
@@ -52,11 +52,11 @@ public class JsonGame {
 		this.created = created;
 	}
 
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

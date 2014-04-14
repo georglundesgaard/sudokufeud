@@ -6,40 +6,41 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
-public class Move extends BaseEntity {
-	private static final long serialVersionUID = -1070998890759246050L;
-
+public class Cell extends BaseEntity {
+	private static final long serialVersionUID = 1614866592958652878L;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "round_id")
-	private Round round;
-
+	@JoinColumn(name = "board_id")
+	private Board board;
+	
 	@Column(nullable = false)
 	private int x;
 
 	@Column(nullable = false)
 	private int y;
+	
+	@Column(nullable = true)
+	private Integer piece;
 
-	@Column(nullable = false)
-	private int piece;
+	public Cell() {
+	}
 
-	public Move(int x, int y, int piece) {
+	public Cell(int x, int y, Integer piece) {
 		this.x = x;
 		this.y = y;
 		this.piece = piece;
 	}
 
-	public Round getRound() {
-		return round;
+	public Board getBoard() {
+		return board;
 	}
 
-	public void setRound(Round round) {
-		this.round = round;
+	public void setBoard(Board board) {
+		this.board = board;
 	}
 
 	public int getX() {
@@ -58,12 +59,16 @@ public class Move extends BaseEntity {
 		this.y = y;
 	}
 
-	public int getPiece() {
+	public Integer getPiece() {
 		return piece;
 	}
 
-	public void setPiece(int piece) {
+	public void setPiece(Integer piece) {
 		this.piece = piece;
+	}
+	
+	public boolean isOccupied() {
+		return piece != null;
 	}
 
 	@Override

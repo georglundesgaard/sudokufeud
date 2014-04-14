@@ -6,47 +6,51 @@ import no.lundesgaard.sudokufeud.constants.State;
 import no.lundesgaard.sudokufeud.constants.Status;
 import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.model.Player;
+import no.lundesgaard.sudokufeud.model.PlayerId;
 import no.lundesgaard.sudokufeud.model.Profile;
-import no.lundesgaard.sudokufeud.service.ProfileService;
 
 import org.joda.time.DateTime;
 
 public class JsonGameMapper {
 	private String userId;
-	private ProfileService profileService;
 
-	public JsonGameMapper(String userId, ProfileService profileService) {
+	public JsonGameMapper(String userId) {
 		this.userId = userId;
-		this.profileService = profileService;
 	}
 
 	public JsonGame from(Game game) {
 		Player player1 = game.getPlayer1();
 		Player player2 = game.getPlayer2();
-		Profile playerProfile = profileService.getProfileByUserId(userId);
 		Player player;
 		Player opponent;
-		if (player1.getPlayerId() == playerProfile.getId()) {
+		if (player1.getProfile().getUserId().equals(userId)) {
 			player = player1;
 			opponent = player2;
 		} else {
 			player = player2;
 			opponent = player1;
 		}
-		Profile opponentProfile = profileService.getProfile(opponent.getPlayerId());
+		Profile opponentProfile = opponent.getProfile();
 
-		String gameId = game.getId();
+		long gameId = game.getId();
 		int playerScore = player.getScore();
 		int[] playerAvailablePieces = player.getAvailablePieces();
 		String opponentUserId = opponentProfile.getUserId();
 		int opponentScore = opponent.getScore();
 		State state = game.getState();
 		Status status = player == player1 ? game.getStatusForPlayer1() : game.getStatusForPlayer2();
-		Long currentPlayerId = game.getCurrentPlayerId();
-		String currentPlayer = currentPlayerId != null ? profileService.getProfile(currentPlayerId).getUserId() : null;
+		PlayerId currentPlayerId = game.getCurrentPlayer();
+		String currentPlayer;
+		if (currentPlayerId == null) {
+			currentPlayer = null;
+		} else if (currentPlayerId == PlayerId.PLAYER_ONE) {
+			currentPlayer = player1.getProfile().getUserId();
+		} else {
+			currentPlayer = player2.getProfile().getUserId();
+		} 
 		Integer[] board = game.getBoardArray();
 		Difficulty difficulty = game.getBoardDifficulty();
-		DateTime created = game.getCreated();
+		DateTime created = new DateTime(game.getCreated().getTime());
 
 		return new JsonGame(
 				gameId,

@@ -1,5 +1,7 @@
 package no.lundesgaard.sudokufeud.api.client;
 
+import static java.lang.String.valueOf;
+
 import javax.ws.rs.core.MediaType;
 
 import no.lundesgaard.sudokufeud.api.model.JsonGame;
@@ -74,13 +76,13 @@ public class SudokuFeudClient {
 		return client.resource(root).path(GAMES).get(JsonGame[].class);
 	}
 
-	public JsonGame acceptInvitation(String gameId) {
+	public JsonGame acceptInvitation(long gameId) {
 		validateState();
 
 		JsonGameInvitation jsonGameInvitation = new JsonGameInvitation();
 		jsonGameInvitation.setResponse(JsonGameInvitation.Response.ACCEPT);
 
-		return client.resource(root).path(GAMES).path(gameId).entity(jsonGameInvitation, MediaType.APPLICATION_JSON_TYPE).put(JsonGame.class);
+		return client.resource(root).path(GAMES).path(valueOf(gameId)).entity(jsonGameInvitation, MediaType.APPLICATION_JSON_TYPE).put(JsonGame.class);
 	}
 
 	public void declineInvitation(String gameId) {

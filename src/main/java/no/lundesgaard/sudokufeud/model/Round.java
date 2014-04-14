@@ -1,69 +1,71 @@
 package no.lundesgaard.sudokufeud.model;
 
-import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.joda.time.DateTime;
 
-public class Round implements Serializable {
-    private static final long serialVersionUID = -9161769701283945758L;
+@Entity
+public class Round extends AuditedEntity {
+	private static final long serialVersionUID = -3949281744347864061L;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "game_id")
+	private Game game;
 
-    private final Player player;
-    private final Move[] moves;
-    private final DateTime timestamp;
+	@Column(nullable = false)
+	@Enumerated(EnumType.ORDINAL)
+	private PlayerId playerId;
+	
+	@OneToMany(mappedBy = "round", fetch = FetchType.LAZY)
+	private List<Move> moves = new ArrayList<>();
 
-    public Round(Player player, Move[] moves) {
-        this.player = player;
-        this.moves = copyOf(moves);
-        this.timestamp = DateTime.now();
-    }
+	public Round(PlayerId playerId, Move... moves) {
+		this.playerId = playerId;
+		Collections.addAll(this.moves, moves);
+	}
 
-    public Player getPlayer() {
-        return player;
-    }
+	public Game getGame() {
+		return game;
+	}
 
-    public Move[] getMoves() {
-        return copyOf(moves);
-    }
+	public void setGame(Game game) {
+		this.game = game;
+	}
 
-    public DateTime getTimestamp() {
-        return timestamp;
-    }
+	public PlayerId getPlayerId() {
+		return playerId;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null) return false;
-        if (o == this) return true;
-        if (o.getClass() != this.getClass()) return false;
+	public void setPlayerId(PlayerId playerId) {
+		this.playerId = playerId;
+	}
 
-        Round other = (Round) o;
-        return new EqualsBuilder()
-                .append(this.player, other.player)
-                .append(this.moves, other.moves)
-                .append(this.timestamp, other.timestamp)
-                .isEquals();
-    }
+	public List<Move> getMoves() {
+		return moves;
+	}
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(13, 23)
-                .append(this.player)
-                .append(this.moves)
-                .append(this.timestamp)
-                .toHashCode();
-    }
+	public void setMoves(List<Move> moves) {
+		this.moves = moves;
+	}
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("player", player)
-                .append("moves", moves)
-                .append("timestamp", timestamp)
-                .toString();
-    }
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.appendSuper(super.toString())
+				.append("playerId", playerId)
+				.append("moves", moves)
+				.toString();
+	}
 }

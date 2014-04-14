@@ -1,6 +1,7 @@
 package no.lundesgaard.sudokufeud.util;
 
 import no.lundesgaard.sudokufeud.api.client.SudokuFeudClient;
+import no.lundesgaard.sudokufeud.api.model.JsonGame;
 import no.lundesgaard.sudokufeud.api.model.JsonMove;
 
 public class RestUtil {
@@ -18,16 +19,16 @@ public class RestUtil {
 
 			// print(client1.updateProfile("Georg Lundesgaard"));
 			// print(client1.getProfile());
-			// client1.createGame("ida");
+			client1.createGame("ida");
 			// print(client1.getGames());
 
 			// print(client2.updateProfile("Ida Sirnes"));
 			// print(client2.getProfile());
 			// client2.createGame("georg");
-			print(client2.getGames());
+			// print(client2.getGames());
 
 			// JsonGame[] games = client2.getGames();
-			// String gameId = games[0].getId();
+			// long gameId = games[0].getId();
 			// print(client2.acceptInvitation(gameId));
 
 			// JsonGame[] games = client2.getGames();

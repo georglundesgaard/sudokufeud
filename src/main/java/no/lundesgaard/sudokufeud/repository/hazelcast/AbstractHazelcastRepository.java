@@ -1,17 +1,6 @@
 package no.lundesgaard.sudokufeud.repository.hazelcast;
 
-import no.lundesgaard.sudokufeud.model.Identifiable;
-import no.lundesgaard.sudokufeud.repository.Repository;
-import no.lundesgaard.sudokufeud.repository.exception.EntityNotFoundException;
-
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-
-@SuppressWarnings("SpringJavaAutowiringInspection")
-public abstract class AbstractHazelcastRepository<T extends Identifiable> implements Repository<T> {
+public abstract class AbstractHazelcastRepository {} /*<T extends Identifiable> implements Repository<T> {
 
 	private final Class<T> objectType;
 	private final Logger logger;
@@ -67,4 +56,4 @@ public abstract class AbstractHazelcastRepository<T extends Identifiable> implem
 	}
 
 	protected abstract EntityNotFoundException entityNotFoundException(String id);
-}
+}*/
