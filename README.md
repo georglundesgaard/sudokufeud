@@ -49,8 +49,8 @@ oppstart og det genererte passordet skrives til loggen som en INFO-melding.
 
 Kjøres med følgende kommando fra prosjekt-roten:
 
-    run.sh
-    
+	run.sh
+
 Alternativt kan main-klassen [SudokuFeudApiConfiguration](sudokufeud-api/src/main/java/no/lundesgaard/sudokufeud/api/SudokuFeudApiConfiguration.java) kjøres. 
 
 Kjøre-parametre:
