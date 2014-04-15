@@ -27,17 +27,17 @@ public class RestUtil {
 			// client2.createGame("georg");
 			// print(client2.getGames());
 
-			// JsonGame[] games = client2.getGames();
-			// long gameId = games[0].getId();
-			// print(client2.acceptInvitation(gameId));
+			JsonGame[] games = client2.getGames();
+			long gameId = games[0].getId();
+			print(client2.acceptInvitation(gameId));
 
 			// JsonGame[] games = client2.getGames();
 			// String gameId = games[1].getId();
 			// client2.declineInvitation(gameId);
 
-			// games = client1.getGames();
-			// gameId = games[0].getId();
-			// sampleGame(client1, client2, gameId);
+			games = client1.getGames();
+			gameId = games[0].getId();
+			sampleGame(client1, client2, gameId);
 
 			// for (int i = 0; i < 100; i++) {
 			// client1.createGame("ida");
@@ -155,8 +155,6 @@ public class RestUtil {
 		return client.getGames().length;
 	}
 
-	;
-
 	private static void print(Object json) {
 		System.out.println(json);
 	}
@@ -172,7 +170,7 @@ public class RestUtil {
 		System.out.println("]");
 	}
 
-	private static void sampleGame(SudokuFeudClient client1, SudokuFeudClient client2, String gameId) {
+	private static void sampleGame(SudokuFeudClient client1, SudokuFeudClient client2, long gameId) {
 		// round 1
 		client1.executeRound(gameId, jsonMove(6, 5, 2), jsonMove(0, 1, 3), jsonMove(4, 1, 8));
 

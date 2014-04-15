@@ -1,17 +1,30 @@
 package no.lundesgaard.sudokufeud.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
-public class Cell extends BaseEntity {
+public class Cell implements Serializable {
 	private static final long serialVersionUID = 1614866592958652878L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "CELL_ID_SEQ")
+	@SequenceGenerator(name = "CELL_ID_SEQ", sequenceName = "cell_id_seq")
+	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "board_id")
@@ -35,6 +48,10 @@ public class Cell extends BaseEntity {
 		this.piece = piece;
 	}
 
+	public Long getId() {
+		return id;
+	}
+
 	public Board getBoard() {
 		return board;
 	}
@@ -47,16 +64,8 @@ public class Cell extends BaseEntity {
 		return x;
 	}
 
-	public void setX(int x) {
-		this.x = x;
-	}
-
 	public int getY() {
 		return y;
-	}
-
-	public void setY(int y) {
-		this.y = y;
 	}
 
 	public Integer getPiece() {
@@ -79,5 +88,35 @@ public class Cell extends BaseEntity {
 				.append("y", y)
 				.append("piece", piece)
 				.toString();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+		Cell rhs = (Cell) obj;
+		return new EqualsBuilder()
+				.append(this.id, rhs.id)
+				.append(this.x, rhs.x)
+				.append(this.y, rhs.y)
+				.append(this.piece, rhs.piece)
+				.isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				.append(id)
+				.append(x)
+				.append(y)
+				.append(piece)
+				.toHashCode();
 	}
 }

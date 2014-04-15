@@ -2,6 +2,8 @@ package no.lundesgaard.sudokufeud;
 
 import java.io.File;
 
+import javax.sql.DataSource;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
@@ -9,6 +11,7 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaMapper;
@@ -27,6 +30,16 @@ public class SudokuFeudConfiguration {
 	public static void main(String... args) {
 		SpringApplication springApplication = new SpringApplication(SudokuFeudConfiguration.class);
 		springApplication.run(args);
+	}
+	
+	@Bean
+	public DataSource dataSource() {
+		DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		dataSource.setDriverClassName("org.postgresql.Driver");
+		dataSource.setUrl("jdbc:postgresql:sudokufeud");
+		dataSource.setUsername("admin");
+		dataSource.setPassword("admin");
+		return dataSource;
 	}
 
 	@Bean

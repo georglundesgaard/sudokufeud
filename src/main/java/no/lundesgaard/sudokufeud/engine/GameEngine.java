@@ -21,25 +21,25 @@ public class GameEngine {
 		Player player1 = game.getPlayer1();
 		Player player2 = game.getPlayer2();
 		Board board = game.getBoard();
+		int[] boardAvailablePieces = board.getAvailablePieces();
 
 		int[] availablePieces = new int[7];
-		System.arraycopy(board.getAvailablePieces(), 0, availablePieces, 0, 7);
+		System.arraycopy(boardAvailablePieces, 0, availablePieces, 0, 7);
 		player1.setAvailablePieces(availablePieces);
 
 		availablePieces = new int[7];
-		System.arraycopy(board.getAvailablePieces(), 7, availablePieces, 0, 7);
+		System.arraycopy(boardAvailablePieces, 7, availablePieces, 0, 7);
 		player2.setAvailablePieces(availablePieces);
 
-		availablePieces = new int[board.getAvailablePieces().length - 14];
+		availablePieces = new int[boardAvailablePieces.length - 14];
+		System.arraycopy(boardAvailablePieces, 14, availablePieces, 0, availablePieces.length);
 		game.setAvailablePieces(availablePieces);
 
-		
 		if (player1.getProfile().getUserId().equals(playerUserId)) {
 			game.setCurrentPlayer(PlayerId.PLAYER_ONE);
 		} else {
 			game.setCurrentPlayer(PlayerId.PLAYER_TWO);
 		}
-		
 		game.setStarted(new Date());
 
 		return game;
@@ -128,7 +128,7 @@ public class GameEngine {
 		if (rounds == null) {
 			rounds = new ArrayList<>();
 		}
-		rounds.add(new Round(game.getCurrentPlayer(), movesInRound));
+		rounds.add(new Round(game, movesInRound));
 
 		PlayerId nextPlayerId;
 		if (game.getCurrentPlayer() == PlayerId.PLAYER_ONE) {

@@ -2,20 +2,30 @@ package no.lundesgaard.sudokufeud.model;
 
 import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.hibernate.annotations.NaturalId;
 
 @Entity
-public class Player extends BaseEntity {
+public class Player implements Serializable {
 	private static final long serialVersionUID = -4551882781278736324L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PLAYER_ID_SEQ")
+	@SequenceGenerator(name = "PLAYER_ID_SEQ", sequenceName = "player_id_seq")
+	private Long id;
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "game_id")
@@ -36,6 +46,10 @@ public class Player extends BaseEntity {
 
 	public Player(Profile profile) {
 		this.profile = profile;
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public Game getGame() {

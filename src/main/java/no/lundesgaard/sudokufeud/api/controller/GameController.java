@@ -59,9 +59,6 @@ public class GameController {
 	@Autowired
 	private GameService gameService;
 
-//	@Autowired
-//	private ProfileService profileService;
-
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<JsonGame>> getGames(@AuthenticationPrincipal String userId) {
 		HttpHeaders httpHeaders = new HttpHeaders();
@@ -89,7 +86,6 @@ public class GameController {
 
 	@RequestMapping(value = GAME_PATH, method = RequestMethod.GET)
 	public ResponseEntity<JsonGame> getGame(@AuthenticationPrincipal String userId, @PathVariable(GAME_ID) long gameId) {
-
 		Game game = gameService.getGame(userId, gameId);
 
 		HttpHeaders httpHeaders = new HttpHeaders();
@@ -124,7 +120,6 @@ public class GameController {
 		String opponentUserId = jsonNewGame.getOpponent();
 		long gameId = gameService.createGame(userId, opponentUserId, difficulty);
 		URI gameLoction = uriComponentsBuilder
-				.path(DefaultController.DEFAULT_PATH)
 				.path(GAMES_PATH)
 				.path(GAME_PATH)
 				.buildAndExpand(gameId)
@@ -172,13 +167,6 @@ public class GameController {
 	@ExceptionHandler(IllegalGameStateException.class)
 	@ResponseBody
 	public JsonError handleIllegalGameStateException(IllegalGameStateException e) {
-		return jsonError(e, HttpStatus.BAD_REQUEST);
-	}
-
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	@ExceptionHandler(UnknownUserIdException.class)
-	@ResponseBody
-	public JsonError handleUnknownUserIdException(UnknownUserIdException e) {
 		return jsonError(e, HttpStatus.BAD_REQUEST);
 	}
 

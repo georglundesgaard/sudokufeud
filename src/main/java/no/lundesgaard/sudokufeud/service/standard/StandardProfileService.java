@@ -22,30 +22,7 @@ public class StandardProfileService implements ProfileService {
 	}
 
 	@Override
-	public Profile getProfile(Long profileId) {
-		return profileRepository.findOne(profileId);
-	}
-
-//	@Override
-//	public String getProfileIdByUserId(String userId) {
-//		return profileRepository.findByUserId(userId).getId();
-//	}
-
-	@Override
 	public Profile getProfileByUserId(String userId) {
 		return profileRepository.findByUserId(userId);
 	}
-
-//	@Override
-//	public void updateProfile(Profile updatedProfile) {
-//		Profile profile = profileRepository.findOne(updatedProfile.getId());
-//		profile.setUserId(updatedProfile.getUserId());
-//		profile.setName(updatedProfile.getName());
-//		profile.setPassword(updatedProfile.getPassword());
-//	}
-
-//	@Override
-//	public void deleteProfile(String profileId) {
-//		profileRepository.delete(profileId);
-//	}
 }

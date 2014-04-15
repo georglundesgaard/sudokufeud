@@ -10,7 +10,11 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 
 import no.lundesgaard.sudokufeud.repository.exception.GameNotFoundException;
 
@@ -21,6 +25,11 @@ import org.hibernate.annotations.NaturalId;
 @Entity
 public class Profile extends AuditedEntity {
 	private static final long serialVersionUID = -3134336451049287093L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PROFILE_ID_SEQ")
+	@SequenceGenerator(name = "PROFILE_ID_SEQ", sequenceName = "profile_id_seq")
+	private Long id;
 
 	@Column(nullable = false)
 	@NaturalId
@@ -34,6 +43,10 @@ public class Profile extends AuditedEntity {
 	
 	@OneToMany(mappedBy = "profile", fetch = FetchType.LAZY)
 	private Set<Player> gamePlayers = new HashSet<>();
+
+	public Long getId() {
+		return id;
+	}
 
 	public String getUserId() {
 		return userId;

@@ -94,13 +94,13 @@ public class SudokuFeudClient {
 		client.resource(root).path(GAMES).path(gameId).entity(jsonGameInvitation, MediaType.APPLICATION_JSON_TYPE).put();
 	}
 
-	public void executeRound(String gameId, JsonMove... jsonMoves) {
+	public void executeRound(long gameId, JsonMove... jsonMoves) {
 		validateState();
 
 		JsonRound jsonRound = new JsonRound();
 		jsonRound.setMoves(jsonMoves);
 
-		client.resource(root).path(GAMES).path(gameId).path(ROUNDS).entity(jsonRound, MediaType.APPLICATION_JSON_TYPE).post();
+		client.resource(root).path(GAMES).path(String.valueOf(gameId)).path(ROUNDS).entity(jsonRound, MediaType.APPLICATION_JSON_TYPE).post();
 	}
 
 	public void destroy() {

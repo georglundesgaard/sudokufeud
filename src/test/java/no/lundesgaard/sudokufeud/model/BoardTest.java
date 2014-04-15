@@ -7,7 +7,7 @@ import no.lundesgaard.sudokufeud.constants.Difficulty;
 
 import org.junit.Test;
 
-public class BoardTest {/*
+public class BoardTest {
 
 	@Test
 	public void initHasCorrectDimensions() throws Exception {
@@ -33,8 +33,8 @@ public class BoardTest {/*
 		);
 
 		// verify
-		assertThat(board.isCellOccupied(3, 4)).describedAs("cell(3,4) occupied").isFalse();
-		assertThat(board.isCellOccupied(4, 3)).describedAs("cell(4,3) occupied").isTrue();
+		assertThat(board.getCell(3, 4).isOccupied()).describedAs("cell(3,4) occupied").isFalse();
+		assertThat(board.getCell(4, 3).isOccupied()).describedAs("cell(4,3) occupied").isTrue();
 	}
 
 	@Test
@@ -103,11 +103,10 @@ public class BoardTest {/*
 		Board board = sampleBoard();
 
 		// execution
-		Board updatedBoard = board.placePiece(8, 2, 6);
+		board.placePiece(8, 2, 6);
 
 		// verify
-		assertThat(updatedBoard).isNotSameAs(board);
-		assertThat(updatedBoard.isCellOccupied(8, 2)).isTrue();
+		assertThat(board.getCell(8, 2).isOccupied()).isTrue();
 		Board boardAfter = new Board(
 				Difficulty.EASY,
 
@@ -123,7 +122,7 @@ public class BoardTest {/*
 				null, null, null, null, 9, null, null, null, null,
 				4, 3, null, null, 2, null, null, 5, 1
 		);
-		assertThat(updatedBoard).isEqualTo(boardAfter);
+		assertThat(board).isEqualTo(boardAfter);
 	}
 
 	@Test
@@ -231,5 +230,5 @@ public class BoardTest {/*
 		assertThat(statistics.getOccupiedColumns()).describedAs("occupied columns").isEqualTo(2);
 		assertThat(statistics.getOccupiedRows()).describedAs("occupied rows").isEqualTo(1);
 		assertThat(statistics.getOccupiedSquares()).describedAs("occupied squares").isEqualTo(3);
-	}*/
+	}
 }

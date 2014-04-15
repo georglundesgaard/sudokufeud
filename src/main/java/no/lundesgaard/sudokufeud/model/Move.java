@@ -1,19 +1,28 @@
 package no.lundesgaard.sudokufeud.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
-public class Move extends BaseEntity {
+public class Move implements Serializable {
 	private static final long serialVersionUID = -1070998890759246050L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MOVE_ID_SEQ")
+	@SequenceGenerator(name = "MOVE_ID_SEQ", sequenceName = "move_id_seq")
+	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "round_id")
@@ -28,10 +37,17 @@ public class Move extends BaseEntity {
 	@Column(nullable = false)
 	private int piece;
 
+	public Move() {
+	}
+
 	public Move(int x, int y, int piece) {
 		this.x = x;
 		this.y = y;
 		this.piece = piece;
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public Round getRound() {
@@ -46,24 +62,12 @@ public class Move extends BaseEntity {
 		return x;
 	}
 
-	public void setX(int x) {
-		this.x = x;
-	}
-
 	public int getY() {
 		return y;
 	}
 
-	public void setY(int y) {
-		this.y = y;
-	}
-
 	public int getPiece() {
 		return piece;
-	}
-
-	public void setPiece(int piece) {
-		this.piece = piece;
 	}
 
 	@Override

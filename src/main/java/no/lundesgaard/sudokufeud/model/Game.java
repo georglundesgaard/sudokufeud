@@ -2,9 +2,9 @@ package no.lundesgaard.sudokufeud.model;
 
 import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,9 +12,13 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 
 import no.lundesgaard.sudokufeud.constants.Difficulty;
 import no.lundesgaard.sudokufeud.constants.State;
@@ -22,11 +26,15 @@ import no.lundesgaard.sudokufeud.constants.Status;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.joda.time.DateTime;
 
 @Entity
 public class Game extends AuditedEntity {
 	private static final long serialVersionUID = -3979593399708874988L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GAME_ID_SEQ")
+	@SequenceGenerator(name = "GAME_ID_SEQ", sequenceName = "game_id_seq")
+	private Long id;
 	
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "player1_id")
@@ -40,15 +48,14 @@ public class Game extends AuditedEntity {
 	@Enumerated(EnumType.ORDINAL)
 	private PlayerId currentPlayer;
 	
-	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "board_id")
+	@OneToOne(mappedBy = "game", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Board board;
 	
 	@Column(nullable = true)
 	private int[] availablePieces;
 	
 	@OneToMany(mappedBy = "game", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<Round> rounds;
+	private List<Round> rounds = new ArrayList<>();
 
 	@Column(nullable = true)
 	private Date started;
@@ -65,61 +72,20 @@ public class Game extends AuditedEntity {
 		this.player2 = player2;
 		this.player2.setGame(this);
 		this.board = board;
+		this.board.setGame(this);
 		this.availablePieces = board.getAvailablePieces();
 	}
 
-	public Game( 
-			Player player1, 
-			Player player2, 
-			PlayerId currentPlayer, 
-			Board board, 
-			int[] availablePieces, 
-			List<Round> rounds, 
-			Date started,
-			Date completed) {
-		
-		this.player1 = player1;
-		this.player2 = player2;
-		this.currentPlayer = currentPlayer;
-		this.board = board;
-		this.availablePieces = copyOf(availablePieces);
-		this.rounds = rounds;
-		this.started = started;
-		this.completed = completed;
-	}
-
-	public static String generateId() {
-		return UUID.randomUUID().toString();
+	public Long getId() {
+		return id;
 	}
 
 	public Player getPlayer1() {
 		return player1;
 	}
 
-	public void setPlayer1(Player player1) {
-		player1.setGame(this);
-		this.player1 = player1;
-	}
-
-	public long getPlayerId1() {
-		return player1.getProfile().getId();
-	}
-
-	public long getInvitingPlayerId() {
-		return player1.getProfile().getId();
-	}
-
 	public Player getPlayer2() {
 		return player2;
-	}
-
-	public void setPlayer2(Player player2) {
-		player2.setGame(this);
-		this.player2 = player2;
-	}
-
-	public long getPlayerId2() {
-		return player2.getProfile().getId();
 	}
 
 	public long getInvitedPlayerId() {
@@ -158,10 +124,6 @@ public class Game extends AuditedEntity {
 
 	public List<Round> getRounds() {
 		return rounds;
-	}
-
-	public void setRounds(List<Round> rounds) {
-		this.rounds = rounds;
 	}
 
 	public State getState() {
@@ -205,13 +167,6 @@ public class Game extends AuditedEntity {
 		}
 	}
 
-	public boolean isPlayer(Profile playerProfile) {
-		if (player1.getProfile().getId().equals(playerProfile.getId())) {
-			return true;
-		}
-		return player2.getProfile().getId().equals(playerProfile.getId());
-	}
-
 	public PlayerId getCurrentPlayer() {
 		return currentPlayer;
 	}
@@ -233,29 +188,8 @@ public class Game extends AuditedEntity {
 		return rounds.get(rounds.size() - 1).getPlayerId();
 	}
 
-	public PlayerId getLoser() {
-		if (completed == null) {
-			return null;
-		}
-		if (player1.getScore() > player2.getScore()) {
-			return PlayerId.PLAYER_TWO;
-		}
-		if (player2.getScore() > player1.getScore()) {
-			return PlayerId.PLAYER_ONE;
-		}
-		return rounds.get(rounds.size() - 2).getPlayerId();
-	}
-
-	public Date getStarted() {
-		return started;
-	}
-
 	public void setStarted(Date started) {
 		this.started = started;
-	}
-
-	public Date getCompleted() {
-		return completed;
 	}
 
 	public void setCompleted(Date completed) {

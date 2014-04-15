@@ -12,7 +12,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @MappedSuperclass
-public abstract class AuditedEntity extends BaseEntity {
+public abstract class AuditedEntity implements Serializable {
 	private static final long serialVersionUID = 1609043147639625611L;
 	
 	@Column(nullable = false, insertable = true, updatable = false)
@@ -25,16 +25,8 @@ public abstract class AuditedEntity extends BaseEntity {
 		return created;
 	}
 
-	public void setCreated(Date created) {
-		this.created = created;
-	}
-
 	public Date getModified() {
 		return modified;
-	}
-
-	public void setModified(Date modified) {
-		this.modified = modified;
 	}
 
 	public Date getLastModified() {
@@ -57,7 +49,6 @@ public abstract class AuditedEntity extends BaseEntity {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-				.appendSuper(super.toString())
 				.append("created", created)
 				.append("modified", modified)
 				.toString();

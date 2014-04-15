@@ -1,17 +1,21 @@
 package no.lundesgaard.sudokufeud.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -19,6 +23,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @Entity
 public class Round extends AuditedEntity {
 	private static final long serialVersionUID = -3949281744347864061L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ROUND_ID_SEQ")
+	@SequenceGenerator(name = "ROUND_ID_SEQ", sequenceName = "round_id_seq")
+	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "game_id")
@@ -28,12 +37,23 @@ public class Round extends AuditedEntity {
 	@Enumerated(EnumType.ORDINAL)
 	private PlayerId playerId;
 	
-	@OneToMany(mappedBy = "round", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "round", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Move> moves = new ArrayList<>();
 
-	public Round(PlayerId playerId, Move... moves) {
-		this.playerId = playerId;
-		Collections.addAll(this.moves, moves);
+	public Round() {
+	}
+
+	public Round(Game game, Move... moves) {
+		this.game = game;
+		this.playerId = game.getCurrentPlayer();
+		for (Move move : moves) {
+			move.setRound(this);
+			this.moves.add(move);
+		}
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public Game getGame() {
@@ -48,16 +68,8 @@ public class Round extends AuditedEntity {
 		return playerId;
 	}
 
-	public void setPlayerId(PlayerId playerId) {
-		this.playerId = playerId;
-	}
-
 	public List<Move> getMoves() {
 		return moves;
-	}
-
-	public void setMoves(List<Move> moves) {
-		this.moves = moves;
 	}
 
 	@Override

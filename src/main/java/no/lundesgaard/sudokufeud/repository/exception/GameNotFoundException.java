@@ -10,11 +10,6 @@ public class GameNotFoundException extends RuntimeException {
 	public final long id;
 	public final String userId;
 
-	public GameNotFoundException(long id) {
-		this.id = id;
-		this.userId = null;
-	}
-
 	public GameNotFoundException(long id, String userId) {
 		this.id = id;
 		this.userId = userId;
