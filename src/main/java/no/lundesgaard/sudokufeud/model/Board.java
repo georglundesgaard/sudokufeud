@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -54,20 +55,19 @@ public class Board implements Serializable {
 	public Board() {
 	}
 
-	public Board(Difficulty difficulty, Integer... pieces) {
+	public Board(Difficulty difficulty, int... pieces) {
 		this.difficulty = difficulty;
 		this.cells = new ArrayList<>();
-
 		placePieces(pieces);
 	}
 
-	private void placePieces(Integer[] pieces) {
+	private void placePieces(int... pieces) {
 		for (int i = 0; i < pieces.length; i++) {
 			int x = i % 9;
 			int y = i / 9;
-			Cell cell = new Cell(x, y, pieces[i]);
-			cell.setBoard(this);
-			cells.add(cell);
+			int piece = Math.abs(pieces[i]);
+			boolean occupied = pieces[i] > 0;
+			cells.add(new Cell(this, x, y, piece, occupied));
 		}
 	}
 
@@ -96,16 +96,15 @@ public class Board implements Serializable {
 	}
 
 	public void placePiece(int x, int y, int piece) {
-		for (Cell cell : cells) {
-			if (cell.getX() == x && cell.getY() == y) {
-				if (cell.isOccupied()) {
-					throw new BoardException(format("cell(%d,%d) is occupied", x, y));
-				}
-				cell.setPiece(piece);
-				return;
-			}
+		Optional<Cell> optionalCell = cells.stream().filter(cell -> cell.getX() == x && cell.getY() == y).findAny();
+		Cell cell = optionalCell.orElseThrow(() -> new BoardException(format("Unknown cell (%d,%d)", x, y)));
+		if (cell.isOccupied()) {
+			throw new BoardException(format("cell (x=<%d>; y=<%d>) is occupied", x, y));
 		}
-		throw new BoardException(format("Unknown cell (%d,%d)", x, y));
+		if (cell.getPiece() != piece) {
+			throw new BoardException(format("invalid piece <%s> for this cell (x=<%d>; y=<%d>)", piece, x, y));
+		}
+		cell.setOccupied(true);
 	}
 
 	public Statistics getStatistics() {
@@ -160,6 +159,7 @@ public class Board implements Serializable {
 			int x = cell.getX();
 			int y = cell.getY();
 			Integer piece = cell.getPiece();
+			boolean occupied = cell.isOccupied();
 
 			if (x == 0 && y % 3 == 0) {
 				output.append("+-------+-------+-------+\n");
@@ -167,10 +167,10 @@ public class Board implements Serializable {
 			if (x % 3 == 0) {
 				output.append("| ");
 			}
-			if (piece == null) {
-				output.append('_');
-			} else {
+			if (occupied) {
 				output.append(piece);
+			} else {
+				output.append('_');
 			}
 			output.append(' ');
 			if (x == WIDTH - 1) {
@@ -197,15 +197,18 @@ public class Board implements Serializable {
 		
 		cells.forEach(cell -> {
 			int y = cell.getY();
-			Integer piece = cell.getPiece();
+			int piece = cell.getPiece();
+			boolean occupied = cell.isOccupied();
 			for (int i = 0; i < WIDTH; i++) {
 				if (availablePieces[i][y] != null && availablePieces[i][y].equals(piece)) {
-					availablePieces[i][y] = null;
+					if (occupied) {
+						availablePieces[i][y] = null;
+					}
 					break;
 				}
 			}
 		});
-//
+
 		List<Integer> resultList = new ArrayList<>();
 		for (int y = 0; y < HEIGHT; y++) {
 			for (int x = 0; x < WIDTH; x++) {
@@ -223,7 +226,7 @@ public class Board implements Serializable {
 	}
 
 	public Integer[] toIntegerArray() {
-		return cells.stream().map(Cell::getPiece).toArray(Integer[]::new);
+		return cells.stream().map(cell -> cell.isOccupied() ? cell.getPiece() : null).toArray(Integer[]::new);
 	}
 
 	@Override

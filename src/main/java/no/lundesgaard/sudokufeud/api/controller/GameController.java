@@ -22,7 +22,6 @@ import no.lundesgaard.sudokufeud.constants.Difficulty;
 import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.model.Move;
 import no.lundesgaard.sudokufeud.repository.exception.GameNotFoundException;
-import no.lundesgaard.sudokufeud.repository.exception.UnknownUserIdException;
 import no.lundesgaard.sudokufeud.service.GameService;
 import no.lundesgaard.sudokufeud.service.IllegalGameStateException;
 

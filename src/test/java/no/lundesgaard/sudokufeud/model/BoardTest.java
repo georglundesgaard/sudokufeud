@@ -19,17 +19,17 @@ public class BoardTest {
 		Board board = new Board(
 				Difficulty.EASY,
 
-				null, null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null,
+				-8, -4, +7, -2, +6, +3, -1, +9, +5,
+				-3, -5, +6, -1, -8, +9, -4, +7, +2,
+				+1, -2, -9, -7, +5, +4, +3, +8, -6,
 
-				null, null, null, null, c43, null, null, null, null,
-				null, null, null, c34, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null,
+				-9, -1, -3, -5, +7, +2, -8, -6, -4,
+				+6, -7, +2, -4, +3, +8, +5, -1, +9,
+				+5, -8, +4, +9, -1, -6, -2, +3, +7,
 
-				null, null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null
+				-7, +9, +5, -3, -4, +1, -6, +2, +8,
+				-2, -6, -1, -8, +9, -5, -7, -4, -3,
+				+4, +3, -8, -6, +2, -7, -9, +5, +1
 		);
 
 		// verify
@@ -110,17 +110,17 @@ public class BoardTest {
 		Board boardAfter = new Board(
 				Difficulty.EASY,
 
-				null, null, 7, null, 6, 3, null, 9, 5,
-				null, null, 6, null, null, 9, null, 7, 2,
-				1, null, null, null, 5, 4, 3, 8, 6,
+				-8, -4, +7, -2, +6, +3, -1, +9, +5,
+				-3, -5, +6, -1, -8, +9, -4, +7, +2,
+				+1, -2, -9, -7, +5, +4, +3, +8, +6,
 
-				null, null, null, null, null, 2, null, null, null,
-				6, null, 2, null, 3, 8, 5, null, 9,
-				5, null, 4, 9, null, null, null, 3, 7,
+				-9, -1, -3, -5, -7, +2, -8, -6, -4,
+				+6, -7, +2, -4, +3, +8, +5, -1, +9,
+				+5, -8, +4, +9, -1, -6, -2, +3, +7,
 
-				null, 9, 5, null, null, 1, null, 2, 8,
-				null, null, null, null, 9, null, null, null, null,
-				4, 3, null, null, 2, null, null, 5, 1
+				-7, +9, +5, -3, -4, +1, -6, +2, +8,
+				-2, -6, -1, -8, +9, -5, -7, -4, -3,
+				+4, +3, -8, -6, +2, -7, -9, +5, +1
 		);
 		assertThat(board).isEqualTo(boardAfter);
 	}
@@ -134,7 +134,7 @@ public class BoardTest {
 		try {
 			board.placePiece(2, 0, 1);
 		} catch (BoardException e) {
-			assertThat(e.getMessage()).isEqualTo("cell(2,0) is occupied");
+			assertThat(e.getMessage()).isEqualTo("cell (x=<2>; y=<0>) is occupied");
 			return;
 		}
 		fail("expected BoardException");
@@ -144,17 +144,17 @@ public class BoardTest {
 		return new Board(
 				Difficulty.EASY,
 
-				null, null, 7, null, 6, 3, null, 9, 5,
-				null, null, 6, null, null, 9, null, 7, 2,
-				1, null, null, null, 5, 4, 3, 8, null,
+				-8, -4, +7, -2, +6, +3, -1, +9, +5,
+				-3, -5, +6, -1, -8, +9, -4, +7, +2,
+				+1, -2, -9, -7, +5, +4, +3, +8, -6,
 
-				null, null, null, null, null, 2, null, null, null,
-				6, null, 2, null, 3, 8, 5, null, 9,
-				5, null, 4, 9, null, null, null, 3, 7,
+				-9, -1, -3, -5, -7, +2, -8, -6, -4,
+				+6, -7, +2, -4, +3, +8, +5, -1, +9,
+				+5, -8, +4, +9, -1, -6, -2, +3, +7,
 
-				null, 9, 5, null, null, 1, null, 2, 8,
-				null, null, null, null, 9, null, null, null, null,
-				4, 3, null, null, 2, null, null, 5, 1
+				-7, +9, +5, -3, -4, +1, -6, +2, +8,
+				-2, -6, -1, -8, +9, -5, -7, -4, -3,
+				+4, +3, -8, -6, +2, -7, -9, +5, +1
 		);
 	}
 
@@ -190,17 +190,17 @@ public class BoardTest {
 		return new Board(
 				Difficulty.EASY,
 
-				8, 4, 7, 2, 6, 3, 1, 9, 5,
-				3, 5, 6, 1, 8, 9, 4, 7, 2,
-				1, 2, 9, 7, 5, 4, 3, 8, 6,
+				+8, +4, +7, +2, +6, +3, +1, +9, +5,
+				+3, +5, +6, +1, +8, +9, +4, +7, +2,
+				+1, +2, +9, +7, +5, +4, +3, +8, +6,
 
-				9, 1, 3, 5, 7, 2, 8, 6, 4,
-				6, 7, 2, 4, 3, 8, 5, 1, 9,
-				5, 8, 4, 9, 1, 6, 2, 3, 7,
+				+9, +1, +3, +5, +7, +2, +8, +6, +4,
+				+6, +7, +2, +4, +3, +8, +5, +1, +9,
+				+5, +8, +4, +9, +1, +6, +2, +3, +7,
 
-				7, 9, 5, 3, 4, 1, 6, 2, 8,
-				2, 6, 1, 8, 9, 5, 7, 4, 3,
-				4, 3, 8, 6, 2, 7, 9, 5, 1
+				+7, +9, +5, +3, +4, +1, +6, +2, +8,
+				+2, +6, +1, +8, +9, +5, +7, +4, +3,
+				+4, +3, +8, +6, +2, +7, +9, +5, +1
 		);
 	}
 
@@ -210,17 +210,17 @@ public class BoardTest {
 		Board board = new Board(
 				Difficulty.EASY,
 
-				null, null, 7, 2, 6, 3, 1, 9, 5,
-				3, null, 6, 1, 8, 9, 4, 7, 2,
-				1, null, 9, 7, 5, 4, 3, 8, 6,
+				-8, -4, +7, +2, +6, +3, +1, +9, +5,
+				+3, -5, +6, +1, +8, +9, +4, +7, +2,
+				+1, -2, +9, +7, +5, +4, +3, +8, +6,
 
-				9, null, null, 5, 7, 2, 8, null, 4,
-				6, null, 2, 4, 3, 8, 5, null, 9,
-				5, 8, 4, 9, 1, 6, 2, 3, 7,
+				+9, -1, -3, +5, +7, +2, +8, -6, +4,
+				+6, -7, +2, +4, +3, +8, +5, -1, 9,
+				+5, +8, +4, +9, +1, +6, +2, +3, +7,
 
-				null, 9, 5, null, null, 1, null, 2, 8,
-				null, null, null, null, 9, 5, null, 4, 3,
-				4, 3, null, null, 2, 7, null, 5, 1
+				-7, +9, +5, -3, -4, +1, -6, +2, +8,
+				-2, -6, -1, -8, +9, +5, -7, +4, +3,
+				+4, +3, -8, -6, +2, +7, -9, +5, +1
 		);
 
 		// execution

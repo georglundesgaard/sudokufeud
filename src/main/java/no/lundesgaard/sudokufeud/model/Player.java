@@ -68,6 +68,10 @@ public class Player implements Serializable {
 		this.profile = profile;
 	}
 
+	public String getUserId() {
+		return profile.getUserId();
+	} 
+
 	public int getScore() {
 		return score;
 	}

@@ -19,7 +19,7 @@ public class RestUtil {
 
 			// print(client1.updateProfile("Georg Lundesgaard"));
 			// print(client1.getProfile());
-			client1.createGame("ida");
+			// client1.createGame("ida");
 			// print(client1.getGames());
 
 			// print(client2.updateProfile("Ida Sirnes"));
