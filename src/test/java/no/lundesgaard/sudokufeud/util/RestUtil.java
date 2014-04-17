@@ -35,9 +35,9 @@ public class RestUtil {
 			// String gameId = games[1].getId();
 			// client2.declineInvitation(gameId);
 
-			games = client1.getGames();
-			gameId = games[0].getId();
-			sampleGame(client1, client2, gameId);
+			// games = client1.getGames();
+			// gameId = games[0].getId();
+			// sampleGame(client1, client2, gameId);
 
 			// for (int i = 0; i < 100; i++) {
 			// client1.createGame("ida");

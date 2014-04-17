@@ -19,6 +19,7 @@ import no.lundesgaard.sudokufeud.api.model.JsonMove;
 import no.lundesgaard.sudokufeud.api.model.JsonNewGame;
 import no.lundesgaard.sudokufeud.api.model.JsonRound;
 import no.lundesgaard.sudokufeud.constants.Difficulty;
+import no.lundesgaard.sudokufeud.model.BoardException;
 import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.model.Move;
 import no.lundesgaard.sudokufeud.repository.exception.GameNotFoundException;
@@ -169,10 +170,17 @@ public class GameController {
 		return jsonError(e, HttpStatus.BAD_REQUEST);
 	}
 
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	@ExceptionHandler(Exception.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(BoardException.class)
 	@ResponseBody
-	public JsonError handleException(Exception e) {
+	public JsonError handleBoardException(BoardException e) {
+		return jsonError(e, HttpStatus.BAD_REQUEST);
+	}
+
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ExceptionHandler(RuntimeException.class)
+	@ResponseBody
+	public JsonError handleRuntimeException(RuntimeException e) {
 		return jsonError(e, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 

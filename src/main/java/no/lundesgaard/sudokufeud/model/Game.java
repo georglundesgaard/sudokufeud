@@ -23,7 +23,6 @@ import javax.persistence.SequenceGenerator;
 import no.lundesgaard.sudokufeud.constants.Difficulty;
 import no.lundesgaard.sudokufeud.constants.State;
 import no.lundesgaard.sudokufeud.constants.Status;
-import no.lundesgaard.sudokufeud.engine.GameEngineException;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -197,18 +196,23 @@ public class Game extends AuditedEntity {
 
 	public static Game create(Profile playerProfile1, Profile playerProfile2, Board board) {
 		if (playerProfile1 == null) {
-			throw new GameEngineException("player1 required");
+			throw new IllegalArgumentException("player1 required");
 		}
 		if (playerProfile2 == null) {
-			throw new GameEngineException("player2 required");
+			throw new IllegalArgumentException("player2 required");
 		}
 		if (board == null) {
-			throw new GameEngineException("board required");
+			throw new IllegalArgumentException("board required");
 		}
 		return new Game(new Player(playerProfile1), new Player(playerProfile2), board);
 	}
 
 	public void start(String playerUserId) {
+		State state = getState();
+		if (state != State.NEW) {
+			throw new IllegalStateException(format("expected state <%s>, but was <%s>", State.NEW, state));
+		}
+		
 		PlayerId currentPlayer;
 		if (player1.getUserId().equals(playerUserId)) {
 			currentPlayer = PlayerId.PLAYER_ONE;
@@ -254,10 +258,10 @@ public class Game extends AuditedEntity {
 		for (Move move : movesInRound) {
 			Integer piece = move.getPiece();
 			if (piece <= 0 || piece >= 10) {
-				throw new GameEngineException("illegal piece: " + piece);
+				throw new IllegalArgumentException(format("illegal piece: <%s>", piece));
 			}
 			if (!playerPieceList.contains(piece)) {
-				throw new GameEngineException("unavailable piece: " + piece);
+				throw new IllegalArgumentException(format("unavailable piece: <%s>", piece));
 			}
 			board.placePiece(move.getX(), move.getY(), piece);
 			playerPieceList.remove(piece);

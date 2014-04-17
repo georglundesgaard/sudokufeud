@@ -5,9 +5,9 @@ import static java.lang.String.format;
 import java.util.List;
 
 import no.lundesgaard.sudokufeud.constants.Difficulty;
+import no.lundesgaard.sudokufeud.constants.State;
 import no.lundesgaard.sudokufeud.constants.Status;
 import no.lundesgaard.sudokufeud.engine.BoardGenerator;
-import no.lundesgaard.sudokufeud.engine.GameEngine;
 import no.lundesgaard.sudokufeud.model.Board;
 import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.model.Move;
@@ -61,7 +61,7 @@ public class GameService {
 	public Game acceptInvitation(String playerUserId, long gameId) throws UnknownUserIdException, IllegalGameStateException {
 		Profile player = profileRepository.findByUserId(playerUserId);
 		Game game = player.findGame(gameId);
-		if (game.getInvitedPlayerId() == player.getId()) {
+		if (game.getInvitedPlayerId() == player.getId() && game.getState() == State.NEW) {
 			String startingPlayerUserId = game.getPlayer1().getProfile().getUserId();
 			game.start(startingPlayerUserId);
 			return game;
@@ -73,7 +73,7 @@ public class GameService {
 	public void declineInvitation(String playerUserId, long gameId) throws UnknownUserIdException, IllegalGameStateException {
 		Profile player = profileRepository.findByUserId(playerUserId);
 		Game game = player.findGame(gameId);
-		if (game.getInvitedPlayerId() == player.getId()) {
+		if (game.getInvitedPlayerId() == player.getId() && game.getState() == State.NEW) {
 			gameRepository.delete(game.getId());
 		}
 
