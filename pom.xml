@@ -39,14 +39,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-remote-shell</artifactId>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast</artifactId>
@@ -55,6 +58,7 @@
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast-cloud</artifactId>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -105,6 +109,7 @@
 				<version>9.3-1101-jdbc41</version>
 				<scope>runtime</scope>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast</artifactId>
@@ -115,6 +120,7 @@
 				<artifactId>hazelcast-cloud</artifactId>
 				<version>3.1.5</version>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
@@ -150,6 +156,7 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>sudokufeud-${git.commit.id.describe}</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -164,6 +171,12 @@
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
+				<configuration>
+					<gitDescribe>
+						<tags>true</tags>
+						<forceLongFormat>true</forceLongFormat>
+					</gitDescribe>
+				</configuration>
 			</plugin>
 		</plugins>
 		<!--

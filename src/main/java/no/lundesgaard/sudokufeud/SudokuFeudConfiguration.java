@@ -15,8 +15,6 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaMapper;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
 
 import ch.qos.logback.access.tomcat.LogbackValve;
 
@@ -42,10 +40,10 @@ public class SudokuFeudConfiguration {
 		return dataSource;
 	}
 
-	@Bean
-	public HazelcastInstance hazelcastInstance() {
-		return Hazelcast.newHazelcastInstance();
-	}
+//	@Bean
+//	public HazelcastInstance hazelcastInstance() {
+//		return Hazelcast.newHazelcastInstance();
+//	}
 
 	@Bean
 	public EmbeddedServletContainerCustomizer containerCustomizer() {
