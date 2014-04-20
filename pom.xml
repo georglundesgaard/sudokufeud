@@ -175,6 +175,7 @@
 					<gitDescribe>
 						<tags>true</tags>
 						<forceLongFormat>true</forceLongFormat>
+						<abbrev>7</abbrev>
 					</gitDescribe>
 				</configuration>
 			</plugin>
