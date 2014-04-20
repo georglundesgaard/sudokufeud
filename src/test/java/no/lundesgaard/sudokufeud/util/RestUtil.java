@@ -19,7 +19,7 @@ public class RestUtil {
 
 			// print(client1.updateProfile("Georg Lundesgaard"));
 			// print(client1.getProfile());
-			client1.createGame("ida");
+			// client1.createGame("ida");
 			// print(client1.getGames());
 
 			// print(client2.updateProfile("Ida Sirnes"));
@@ -27,17 +27,17 @@ public class RestUtil {
 			// client2.createGame("georg");
 			// print(client2.getGames());
 
-			JsonGame[] games = client2.getGames();
-			long gameId = games[0].getId();
-			print(client2.acceptInvitation(gameId));
+			// JsonGame[] games = client2.getGames();
+			// long gameId = games[0].getId();
+			// print(client2.acceptInvitation(gameId));
 
 			// JsonGame[] games = client2.getGames();
 			// String gameId = games[1].getId();
 			// client2.declineInvitation(gameId);
 
-			games = client1.getGames();
-			gameId = games[0].getId();
-			sampleGame(client1, client2, gameId);
+			// games = client1.getGames();
+			// gameId = games[0].getId();
+			// sampleGame(client1, client2, gameId);
 
 			// for (int i = 0; i < 100; i++) {
 			// client1.createGame("ida");
