@@ -45,11 +45,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
-@RequestMapping(GameController.GAMES_PATH)
+@RequestMapping(GameController.PATH)
 public class GameController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GameController.class);
 	
-	public static final String GAMES_PATH = SudokuFeudConfiguration.ROOT_PATH + "/games";
+	public static final String GAMES_PATH = "games";
+	public static final String PATH = SudokuFeudConfiguration.ROOT_PATH + "/" + GAMES_PATH;
 	public static final String GAME_ID = "gameId";
 	public static final String GAME_PATH = "{" + GAME_ID + "}";
 	public static final String ROUNDS_PATH = GAME_PATH + "/rounds";
@@ -120,8 +121,7 @@ public class GameController {
 		String opponentUserId = jsonNewGame.getOpponent();
 		long gameId = gameService.createGame(userId, opponentUserId, difficulty);
 		URI gameLoction = uriComponentsBuilder
-				.path(GAMES_PATH)
-				.path(GAME_PATH)
+				.pathSegment(SudokuFeudConfiguration.ROOT_PATH, GAMES_PATH, GAME_PATH)
 				.buildAndExpand(gameId)
 				.toUri();
 		HttpHeaders httpHeaders = new HttpHeaders();

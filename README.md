@@ -49,31 +49,25 @@ oppstart og det genererte passordet skrives til loggen som en INFO-melding.
 
 Kjøres med følgende kommando fra prosjekt-roten:
 
-	run.sh
+	./run.sh
 
 Alternativt kan main-klassen [SudokuFeudApiConfiguration](sudokufeud-api/src/main/java/no/lundesgaard/sudokufeud/api/SudokuFeudApiConfiguration.java) kjøres. 
 
 Kjøre-parametre:
 
 * -Xms64m 
-* -Xmx512m 
-* -Dhazelcast.config=config/hazelcast-dev.xml
+* -Xmx512m
 
-Applikasjon er konfigurert for å enkelt kunne kjøres i et cluster på Amazon AWS. Lag en 
-Hazelcast-konfigurasjon for AWS (config/hazelcast-aws.xml) basert på malen 
-config/hazelcast-aws-template.xml. For AWS er det viktig å sette opp acces- og secret-key
-AWS-kontoen og hvilken security group instansene tilhører slik Hazelcast kan finne alle
-instansene som tilhører clusteret.
+Kjørende instans (localhost, port 8080) stoppes med følgende kommando:
 
-Kjøres med følgende kommando fra prosjekt-roten:
+	./shutdown.sh admin-passord
 
-    run-aws.sh
-    
-Kjøre-parametre:
+Programmet kan installeres i definert hjemmekatalog (default: /opt/sudokufeud) med følgende kommando:
 
-* -Xms64m 
-* -Xmx512m 
-* -Dhazelcast.config=config/hazelcast-aws.xml
+	./install.sh [hjemmekatalog]
+
+Installerings-script kopierer .jar-fil, scripts og config til en ny katalog, navngitt med tag-navn og commit-id, i hjemmekatalogen
+og lager en symbolsk link til fra latest i hjemmekatalogen.
 
 # Systemkrav
 

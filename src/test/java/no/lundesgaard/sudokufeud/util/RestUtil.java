@@ -27,9 +27,9 @@ public class RestUtil {
 			// client2.createGame("georg");
 			// print(client2.getGames());
 
-			JsonGame[] games = client2.getGames();
-			long gameId = games[0].getId();
-			print(client2.acceptInvitation(gameId));
+			// JsonGame[] games = client2.getGames();
+			// long gameId = games[0].getId();
+			// print(client2.acceptInvitation(gameId));
 
 			// JsonGame[] games = client2.getGames();
 			// String gameId = games[1].getId();
