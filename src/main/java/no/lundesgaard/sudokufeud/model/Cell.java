@@ -36,16 +36,21 @@ public class Cell implements Serializable {
 	@Column(nullable = false)
 	private int y;
 	
-	@Column(nullable = true)
-	private Integer piece;
+	@Column(nullable = false)
+	private int piece;
+	
+	@Column(nullable = false)
+	private boolean occupied;
 
-	public Cell() {
+	Cell() {
 	}
 
-	public Cell(int x, int y, Integer piece) {
+	public Cell(Board board, int x, int y, int piece, boolean occupied) {
+		this.board = board;
 		this.x = x;
 		this.y = y;
 		this.piece = piece;
+		this.occupied = occupied;
 	}
 
 	public Long getId() {
@@ -68,25 +73,27 @@ public class Cell implements Serializable {
 		return y;
 	}
 
-	public Integer getPiece() {
+	public int getPiece() {
 		return piece;
-	}
-
-	public void setPiece(Integer piece) {
-		this.piece = piece;
 	}
 	
 	public boolean isOccupied() {
-		return piece != null;
+		return occupied;
+	}
+
+	public void setOccupied(boolean occupied) {
+		this.occupied = occupied;
 	}
 
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-				.appendSuper(super.toString())
+				.append("id", id)
+				.append("boardId", board.getId())
 				.append("x", x)
 				.append("y", y)
 				.append("piece", piece)
+				.append("occupied", occupied)
 				.toString();
 	}
 
@@ -107,6 +114,7 @@ public class Cell implements Serializable {
 				.append(this.x, rhs.x)
 				.append(this.y, rhs.y)
 				.append(this.piece, rhs.piece)
+				.append(this.occupied, rhs.occupied)
 				.isEquals();
 	}
 
@@ -117,6 +125,7 @@ public class Cell implements Serializable {
 				.append(x)
 				.append(y)
 				.append(piece)
+				.append(occupied)
 				.toHashCode();
 	}
 }

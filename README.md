@@ -73,3 +73,4 @@ og lager en symbolsk link til fra latest i hjemmekatalogen.
 
 * Java 8
 * Maven 3
+* PostgreSQL 9.2

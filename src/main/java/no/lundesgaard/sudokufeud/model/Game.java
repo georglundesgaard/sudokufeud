@@ -1,6 +1,6 @@
 package no.lundesgaard.sudokufeud.model;
 
-import static no.lundesgaard.sudokufeud.util.ArrayUtil.copyOf;
+import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,10 +63,10 @@ public class Game extends AuditedEntity {
 	@Column(nullable = true)
 	private Date completed;
 
-	public Game() {
+	Game() {
 	}
 
-	public Game(Player player1, Player player2, Board board) {
+	Game(Player player1, Player player2, Board board) {
 		this.player1 = player1;
 		this.player1.setGame(this);
 		this.player2 = player2;
@@ -96,10 +96,6 @@ public class Game extends AuditedEntity {
 		return board;
 	}
 
-	public void setBoard(Board board) {
-		this.board = board;
-	}
-
 	public Integer[] getBoardArray() {
 		if (board != null && started != null) {
 			return board.toIntegerArray();
@@ -112,14 +108,6 @@ public class Game extends AuditedEntity {
 			return board.getDifficulty();
 		}
 		return null;
-	}
-
-	public int[] getAvailablePieces() {
-		return copyOf(availablePieces);
-	}
-
-	public void setAvailablePieces(int[] availablePieces) {
-		this.availablePieces = availablePieces;
 	}
 
 	public List<Round> getRounds() {
@@ -171,10 +159,6 @@ public class Game extends AuditedEntity {
 		return currentPlayer;
 	}
 
-	public void setCurrentPlayer(PlayerId currentPlayer) {
-		this.currentPlayer = currentPlayer;
-	}
-
 	public PlayerId getWinner() {
 		if (completed == null) {
 			return null;
@@ -186,14 +170,6 @@ public class Game extends AuditedEntity {
 			return PlayerId.PLAYER_TWO;
 		}
 		return rounds.get(rounds.size() - 1).getPlayerId();
-	}
-
-	public void setStarted(Date started) {
-		this.started = started;
-	}
-
-	public void setCompleted(Date completed) {
-		this.completed = completed;
 	}
 
 	public Date getLastModified() {
@@ -218,4 +194,128 @@ public class Game extends AuditedEntity {
 				.toString();
 	}
 
+	public static Game create(Profile playerProfile1, Profile playerProfile2, Board board) {
+		if (playerProfile1 == null) {
+			throw new IllegalArgumentException("player1 required");
+		}
+		if (playerProfile2 == null) {
+			throw new IllegalArgumentException("player2 required");
+		}
+		if (board == null) {
+			throw new IllegalArgumentException("board required");
+		}
+		return new Game(new Player(playerProfile1), new Player(playerProfile2), board);
+	}
+
+	public void start(String playerUserId) {
+		State state = getState();
+		if (state != State.NEW) {
+			throw new IllegalStateException(format("expected state <%s>, but was <%s>", State.NEW, state));
+		}
+		
+		PlayerId currentPlayer;
+		if (player1.getUserId().equals(playerUserId)) {
+			currentPlayer = PlayerId.PLAYER_ONE;
+		} else if (player2.getUserId().equals(playerUserId)) {
+			currentPlayer = PlayerId.PLAYER_TWO;
+		} else {
+			throw new IllegalArgumentException(format("unknown starting player: <%s>", playerUserId));
+		}
+		this.currentPlayer = currentPlayer;
+		
+		int[] boardAvailablePieces = board.getAvailablePieces();
+		int[] availablePieces = new int[7];
+		System.arraycopy(boardAvailablePieces, 0, availablePieces, 0, 7);
+		player1.setAvailablePieces(availablePieces);
+		availablePieces = new int[7];
+		System.arraycopy(boardAvailablePieces, 7, availablePieces, 0, 7);
+		player2.setAvailablePieces(availablePieces);
+		availablePieces = new int[boardAvailablePieces.length - 14];
+		System.arraycopy(boardAvailablePieces, 14, availablePieces, 0, availablePieces.length);
+		this.availablePieces = availablePieces;
+
+		started = new Date();
+	}
+
+	public void executeRound(Move... movesInRound) {
+		State state = getState();
+		if (state != State.RUNNING) {
+			throw new IllegalStateException(format("expected state <%s>, but was <%s>", State.RUNNING, state));
+		}
+		
+		Board.Statistics statisticsBefore = board.getStatistics();
+		List<Integer> playerPieceList = new ArrayList<>();
+		if (currentPlayer == PlayerId.PLAYER_ONE) {
+			for (int piece : player1.getAvailablePieces()) {
+				playerPieceList.add(piece);
+			}
+		} else {
+			for (int piece : player2.getAvailablePieces()) {
+				playerPieceList.add(piece);
+			}
+		}
+
+		for (Move move : movesInRound) {
+			Integer piece = move.getPiece();
+			if (piece <= 0 || piece >= 10) {
+				throw new IllegalArgumentException(format("illegal piece: <%s>", piece));
+			}
+			if (!playerPieceList.contains(piece)) {
+				throw new IllegalArgumentException(format("unavailable piece: <%s>", piece));
+			}
+			board.placePiece(move.getX(), move.getY(), piece);
+			playerPieceList.remove(piece);
+		}
+
+		Board.Statistics statisticsAfter = board.getStatistics();
+		int bonus = (statisticsAfter.getOccupiedColumns() - statisticsBefore.getOccupiedColumns()) * 5
+				+ (statisticsAfter.getOccupiedRows() - statisticsBefore.getOccupiedRows()) * 5
+				+ (statisticsAfter.getOccupiedSquares() - statisticsBefore.getOccupiedSquares()) * 5;
+		if (playerPieceList.isEmpty()) {
+			bonus += 10;
+		}
+
+		int score;
+		if (currentPlayer == PlayerId.PLAYER_ONE) {
+			score = player1.getScore();
+			score += movesInRound.length + bonus;
+		} else {
+			score = player2.getScore();
+			score += movesInRound.length + bonus;
+		}
+
+		int index = 0;
+		for (; playerPieceList.size() < 7 && index < availablePieces.length; index++) {
+			playerPieceList.add(availablePieces[index]);
+		}
+		if (index > 0 && index < availablePieces.length) {
+			int[] newAvailablePieces = new int[availablePieces.length - index];
+			System.arraycopy(availablePieces, index, newAvailablePieces, 0, newAvailablePieces.length);
+			availablePieces = newAvailablePieces;
+		} else if (index >= availablePieces.length) {
+			availablePieces = new int[0];
+		}
+
+		int[] playerPieces = new int[playerPieceList.size()];
+		for (int i = 0; i < playerPieceList.size(); i++) {
+			playerPieces[i] = playerPieceList.get(i);
+		}
+		
+		rounds.add(new Round(this, movesInRound));
+
+		if (currentPlayer == PlayerId.PLAYER_ONE) {
+			currentPlayer = PlayerId.PLAYER_TWO;
+			player1.setScore(score);
+			player1.setAvailablePieces(playerPieces);
+		} else {
+			currentPlayer = PlayerId.PLAYER_ONE;
+			player2.setScore(score);
+			player2.setAvailablePieces(playerPieces);
+		}
+
+		if (player1.getAvailablePieces().length == 0 && player2.getAvailablePieces().length == 0) {
+			completed = new Date();
+			currentPlayer = null;
+		}
+	}
 }
