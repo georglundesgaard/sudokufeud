@@ -19,12 +19,14 @@ public class RestUtil {
 
 			// print(client1.updateProfile("Georg Lundesgaard"));
 			// print(client1.getProfile());
+			// client1.createGame(null);
 			// client1.createGame("ida");
 			// print(client1.getGames());
 
 			// print(client2.updateProfile("Ida Sirnes"));
 			// print(client2.getProfile());
 			// client2.createGame("georg");
+			client2.createGame(null);
 			// print(client2.getGames());
 
 			// JsonGame[] games = client2.getGames();

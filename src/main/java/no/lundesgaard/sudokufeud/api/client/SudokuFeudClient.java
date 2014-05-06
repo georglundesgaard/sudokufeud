@@ -13,6 +13,7 @@ import no.lundesgaard.sudokufeud.api.model.JsonRound;
 import no.lundesgaard.sudokufeud.api.model.JsonUpdatedProfile;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.LoggingFilter;
@@ -67,7 +68,9 @@ public class SudokuFeudClient {
 		jsonNewGame.setOpponent(opponent);
 		jsonNewGame.setDifficulty("EASY");
 
-		client.resource(root).path(GAMES).entity(jsonNewGame, MediaType.APPLICATION_JSON_TYPE).post();
+		ClientResponse response = client.resource(root).path(GAMES).entity(jsonNewGame, MediaType.APPLICATION_JSON_TYPE).post(ClientResponse.class);
+		String location = response.getHeaders().getFirst("Location");
+		System.out.println("Location: " + location);
 	}
 
 	public JsonGame[] getGames() {

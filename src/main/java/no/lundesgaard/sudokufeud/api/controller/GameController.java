@@ -24,7 +24,6 @@ import no.lundesgaard.sudokufeud.model.Game;
 import no.lundesgaard.sudokufeud.model.Move;
 import no.lundesgaard.sudokufeud.repository.exception.GameNotFoundException;
 import no.lundesgaard.sudokufeud.service.GameService;
-import no.lundesgaard.sudokufeud.service.IllegalGameStateException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,37 +61,42 @@ public class GameController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<JsonGame>> getGames(@AuthenticationPrincipal String userId) {
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-
 		List<Game> games = gameService.getGames(userId);
 		if (games.size() == 0) {
-			return new ResponseEntity<>(Collections.emptyList(), httpHeaders, HttpStatus.OK);
+			return emptyListResponse();
 		}
+		return listResponse(userId, games);
+	}
 
+	private ResponseEntity<List<JsonGame>> listResponse(String userId, List<Game> games) {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		Optional<Date> optionalLastModified = games
 				.stream()
 				.map(Game::getLastModified)
 				.collect(maxBy((d1, d2) -> d1.compareTo(d2)));
 		optionalLastModified.ifPresent(lastModified -> httpHeaders.setLastModified(lastModified.getTime()));
-
 		JsonGameMapper mapper = new JsonGameMapper(userId);
 		List<JsonGame> jsonGames = games
 				.stream()
 				.map(mapper::from)
 				.collect(toList());
-
 		return new ResponseEntity<>(jsonGames, httpHeaders, HttpStatus.OK);
+	}
+
+	private ResponseEntity<List<JsonGame>> emptyListResponse() {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		List<JsonGame> emptyList = Collections.emptyList();
+		return new ResponseEntity<>(emptyList, httpHeaders, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = GAME_PATH, method = RequestMethod.GET)
 	public ResponseEntity<JsonGame> getGame(@AuthenticationPrincipal String userId, @PathVariable(GAME_ID) long gameId) {
 		Game game = gameService.getGame(userId, gameId);
-
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		httpHeaders.setLastModified(game.getLastModified().getTime());
-
 		JsonGame jsonGame = new JsonGameMapper(userId).from(game);
 		return new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
 	}
@@ -119,7 +123,12 @@ public class GameController {
 	public ResponseEntity<?> createGame(@AuthenticationPrincipal String userId, @RequestBody JsonNewGame jsonNewGame, UriComponentsBuilder uriComponentsBuilder) {
 		Difficulty difficulty = Difficulty.valueOf(jsonNewGame.getDifficulty());
 		String opponentUserId = jsonNewGame.getOpponent();
-		long gameId = gameService.createGame(userId, opponentUserId, difficulty);
+		long gameId;
+		if (opponentUserId == null || opponentUserId.trim().length() == 0) {
+			gameId = gameService.createGame(userId, difficulty);
+		} else {
+			gameId = gameService.createGame(userId, opponentUserId, difficulty);
+		}
 		URI gameLoction = uriComponentsBuilder
 				.pathSegment(SudokuFeudConfiguration.ROOT_PATH, GAMES_PATH, GAME_PATH)
 				.buildAndExpand(gameId)
@@ -164,9 +173,9 @@ public class GameController {
 	}
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	@ExceptionHandler(IllegalGameStateException.class)
+	@ExceptionHandler(IllegalStateException.class)
 	@ResponseBody
-	public JsonError handleIllegalGameStateException(IllegalGameStateException e) {
+	public JsonError handleIllegalStateException(IllegalStateException e) {
 		return jsonError(e, HttpStatus.BAD_REQUEST);
 	}
 

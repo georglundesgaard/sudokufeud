@@ -37,15 +37,31 @@ public class GameService {
 	@Autowired
 	private ProfileRepository profileRepository;
 
-	public long createGame(String playerUserId1, String playerUserId2, Difficulty difficulty) {
-		Profile player1 = profileRepository.findByUserId(playerUserId1);
-		Profile player2 = profileRepository.findByUserId(playerUserId2);
+	/**
+	 * @return game with a random player or an invitation for a random game if none found
+	 */
+	public long createGame(String userId, Difficulty difficulty) {
+		Profile profile = profileRepository.findByUserId(userId);
+		Game randomGame = gameRepository.findRandomGameWithoutSecondPlayerExludingGamesWithThisPlayer(profile.getId());
+		if (randomGame == null) {
+			return createGame(profile, null, difficulty);
+		}
+		Player player2 = new Player(profile);
+		randomGame.setPlayer2(player2);
+		randomGame.start();
+		return randomGame.getId();
+	}
 
+	public long createGame(String userId1, String userId2, Difficulty difficulty) {
+		Profile profile1 = profileRepository.findByUserId(userId1);
+		Profile profile2 = profileRepository.findByUserId(userId2);
+		return createGame(profile1, profile2, difficulty);
+	}
+
+	private long createGame(Profile profile1, Profile profile2, Difficulty difficulty) {
 		Board board = boardGenerator.generateBoard(difficulty);
-		Game game = Game.create(player1, player2, board);
-		game = gameRepository.save(game);
-
-		return game.getId();
+		Game game = Game.create(profile1, profile2, board);
+		return gameRepository.save(game).getId();
 	}
 
 	public List<Game> getGames(String playerUserId) throws UnknownUserIdException {
@@ -58,29 +74,26 @@ public class GameService {
 		return player.findGame(gameId);
 	}
 
-	public Game acceptInvitation(String playerUserId, long gameId) throws UnknownUserIdException, IllegalGameStateException {
+	public Game acceptInvitation(String playerUserId, long gameId) throws UnknownUserIdException, IllegalStateException {
 		Profile player = profileRepository.findByUserId(playerUserId);
 		Game game = player.findGame(gameId);
 		if (game.getInvitedPlayerId() == player.getId() && game.getState() == State.NEW) {
-			String startingPlayerUserId = game.getPlayer1().getProfile().getUserId();
-			game.start(startingPlayerUserId);
+			game.start();
 			return game;
 		}
-
-		throw new IllegalGameStateException("not an invitation");
+		throw new IllegalStateException("not an invitation");
 	}
 
-	public void declineInvitation(String playerUserId, long gameId) throws UnknownUserIdException, IllegalGameStateException {
+	public void declineInvitation(String playerUserId, long gameId) throws UnknownUserIdException, IllegalStateException {
 		Profile player = profileRepository.findByUserId(playerUserId);
 		Game game = player.findGame(gameId);
 		if (game.getInvitedPlayerId() == player.getId() && game.getState() == State.NEW) {
 			gameRepository.delete(game.getId());
 		}
-
-		throw new IllegalGameStateException("not an invitation");
+		throw new IllegalStateException("not an invitation");
 	}
 
-	public int executeRound(String playerUserId, long gameId, Move[] moves) throws IllegalGameStateException {
+	public int executeRound(String playerUserId, long gameId, Move[] moves) throws IllegalStateException {
 		Profile playerProfile = profileRepository.findByUserId(playerUserId);
 		Game game = playerProfile.findGame(gameId);
 
@@ -91,7 +104,7 @@ public class GameService {
 			currentPlayer = game.getPlayer2();
 		}
 		if (!currentPlayer.getProfile().getUserId().equals(playerUserId)) {
-			throw new IllegalGameStateException(format("player <%s> is not current player", currentPlayer.getProfile().getUserId()));
+			throw new IllegalStateException(format("player <%s> is not current player", currentPlayer.getProfile().getUserId()));
 		}
 
 		Status status;
@@ -106,6 +119,6 @@ public class GameService {
 			return game.getRounds().size() - 1;
 		}
 
-		throw new IllegalGameStateException(format("game with id <%s> is not running", gameId));
+		throw new IllegalStateException(format("game with id <%s> is not running", gameId));
 	}
 }

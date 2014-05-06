@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -37,11 +38,11 @@ public class Game extends AuditedEntity {
 	private Long id;
 	
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "player1_id")
+	@JoinColumn(name = "player1_id", nullable = false)
 	private Player player1;
 	
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "player2_id")
+	@JoinColumn(name = "player2_id", nullable = true)
 	private Player player2;
 	
 	@Column(nullable = true)
@@ -70,7 +71,9 @@ public class Game extends AuditedEntity {
 		this.player1 = player1;
 		this.player1.setGame(this);
 		this.player2 = player2;
-		this.player2.setGame(this);
+		if (this.player2 != null) {
+			this.player2.setGame(this);
+		}
 		this.board = board;
 		this.board.setGame(this);
 		this.availablePieces = board.getAvailablePieces();
@@ -86,6 +89,11 @@ public class Game extends AuditedEntity {
 
 	public Player getPlayer2() {
 		return player2;
+	}
+
+	public void setPlayer2(Player player2) {
+		this.player2 = player2;
+		this.player2.setGame(this);
 	}
 
 	public long getInvitedPlayerId() {
@@ -194,47 +202,39 @@ public class Game extends AuditedEntity {
 				.toString();
 	}
 
-	public static Game create(Profile playerProfile1, Profile playerProfile2, Board board) {
-		if (playerProfile1 == null) {
+	public static Game create(Profile profile1, Profile profile2, Board board) {
+		if (profile1 == null) {
 			throw new IllegalArgumentException("player1 required");
-		}
-		if (playerProfile2 == null) {
-			throw new IllegalArgumentException("player2 required");
 		}
 		if (board == null) {
 			throw new IllegalArgumentException("board required");
 		}
-		return new Game(new Player(playerProfile1), new Player(playerProfile2), board);
+		Player player1 = new Player(profile1);
+		if (profile2 == null) {
+			return new Game(player1, null, board);
+		}
+		Player player2 = new Player(profile2);
+		return new Game(player1, player2, board);
 	}
 
-	public void start(String playerUserId) {
+	public void start() {
 		State state = getState();
 		if (state != State.NEW) {
 			throw new IllegalStateException(format("expected state <%s>, but was <%s>", State.NEW, state));
 		}
-		
-		PlayerId currentPlayer;
-		if (player1.getUserId().equals(playerUserId)) {
-			currentPlayer = PlayerId.PLAYER_ONE;
-		} else if (player2.getUserId().equals(playerUserId)) {
-			currentPlayer = PlayerId.PLAYER_TWO;
-		} else {
-			throw new IllegalArgumentException(format("unknown starting player: <%s>", playerUserId));
-		}
-		this.currentPlayer = currentPlayer;
-		
+		int playerIdIndex = new Random(System.currentTimeMillis()).nextInt(2);
+		this.currentPlayer = PlayerId.values()[playerIdIndex];
 		int[] boardAvailablePieces = board.getAvailablePieces();
 		int[] availablePieces = new int[7];
 		System.arraycopy(boardAvailablePieces, 0, availablePieces, 0, 7);
-		player1.setAvailablePieces(availablePieces);
+		this.player1.setAvailablePieces(availablePieces);
 		availablePieces = new int[7];
 		System.arraycopy(boardAvailablePieces, 7, availablePieces, 0, 7);
-		player2.setAvailablePieces(availablePieces);
+		this.player2.setAvailablePieces(availablePieces);
 		availablePieces = new int[boardAvailablePieces.length - 14];
 		System.arraycopy(boardAvailablePieces, 14, availablePieces, 0, availablePieces.length);
 		this.availablePieces = availablePieces;
-
-		started = new Date();
+		this.started = new Date();
 	}
 
 	public void executeRound(Move... movesInRound) {

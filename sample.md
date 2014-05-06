@@ -43,8 +43,8 @@ Tilgjengelige brikker:
 
 3. Spiller 1 plasserer brikker på brettet
 
- 	Spiller 1: 	2 3 8
- 	Poeng:		3
+	Spiller 1: 	2 3 8
+	Poeng:		3
 
 	0 0 7  0 6 3  0 9 5
 	3 0 6  0 8 9  0 7 2		3@0 8@4
@@ -73,7 +73,7 @@ Tilgjengelige brikker:
 	          6 7 8 9
 	1     4     7
 	1 2       6   8
-
+	
 	    3 4   6 7
 	1 2 3 4 5 6 7 8
 	          6 7 8 9

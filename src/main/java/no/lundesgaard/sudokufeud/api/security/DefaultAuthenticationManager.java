@@ -5,13 +5,13 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import no.lundesgaard.sudokufeud.model.Profile;
-import no.lundesgaard.sudokufeud.repository.exception.UnknownUserIdException;
 import no.lundesgaard.sudokufeud.service.ProfileService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
@@ -39,6 +39,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 	@Override
 	public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
+		validate(authentication);
 		Profile profile = getOrCreateProfile(authentication);
 		String password = getPassword(authentication);
 
@@ -51,6 +52,17 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		authentication.setAuthenticated(false);
 		return authentication;
+	}
+
+	private void validate(Authentication authentication) throws AuthenticationException{
+		String userId = getUserId(authentication);
+		if (userId == null || userId.trim().length() == 0) {
+			throw new BadCredentialsException("missing user id");
+		}
+		String password = getPassword(authentication);
+		if (password == null || password.trim().length() == 0) {
+			throw new BadCredentialsException("blank password password not allowed");
+		}
 	}
 
 	private Profile getOrCreateProfile(Authentication authentication) {

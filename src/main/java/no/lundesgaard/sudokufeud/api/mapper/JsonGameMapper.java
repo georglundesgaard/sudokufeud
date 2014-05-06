@@ -30,13 +30,13 @@ public class JsonGameMapper {
 			player = player2;
 			opponent = player1;
 		}
-		Profile opponentProfile = opponent.getProfile();
+		Profile opponentProfile = opponent != null ? opponent.getProfile() : null;
 
 		long gameId = game.getId();
 		int playerScore = player.getScore();
 		int[] playerAvailablePieces = player.getAvailablePieces();
-		String opponentUserId = opponentProfile.getUserId();
-		int opponentScore = opponent.getScore();
+		String opponentUserId = opponentProfile != null ? opponentProfile.getUserId() : null;
+		int opponentScore = opponent != null ? opponent.getScore() : 0;
 		State state = game.getState();
 		Status status = player == player1 ? game.getStatusForPlayer1() : game.getStatusForPlayer2();
 		PlayerId currentPlayerId = game.getCurrentPlayer();

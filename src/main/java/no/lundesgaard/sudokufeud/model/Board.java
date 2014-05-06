@@ -52,7 +52,7 @@ public class Board implements Serializable {
 	@OrderBy("y ASC, x ASC")
 	private List<Cell> cells;
 
-	public Board() {
+	Board() {
 	}
 
 	public Board(Difficulty difficulty, int... pieces) {

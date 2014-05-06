@@ -29,21 +29,6 @@ public class SudokuFeudConfiguration {
 		SpringApplication springApplication = new SpringApplication(SudokuFeudConfiguration.class);
 		springApplication.run(args);
 	}
-	
-	@Bean
-	public DataSource dataSource() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName("org.postgresql.Driver");
-		dataSource.setUrl("jdbc:postgresql:sudokufeud");
-		dataSource.setUsername("admin");
-		dataSource.setPassword("admin");
-		return dataSource;
-	}
-
-//	@Bean
-//	public HazelcastInstance hazelcastInstance() {
-//		return Hazelcast.newHazelcastInstance();
-//	}
 
 	@Bean
 	public EmbeddedServletContainerCustomizer containerCustomizer() {
