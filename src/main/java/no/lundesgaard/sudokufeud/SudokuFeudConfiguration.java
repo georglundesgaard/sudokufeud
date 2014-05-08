@@ -2,7 +2,7 @@ package no.lundesgaard.sudokufeud;
 
 import java.io.File;
 
-import javax.sql.DataSource;
+import javax.servlet.Filter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -11,7 +11,7 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaMapper;
@@ -56,4 +56,13 @@ public class SudokuFeudConfiguration {
 		jodaMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		return jodaMapper;
 	}
+
+//	@Bean
+//	public Filter commonsRequestLoggingFilter() {
+//		CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
+//		filter.setIncludeClientInfo(true);
+//		filter.setIncludePayload(true);
+//		filter.setIncludeQueryString(true);
+//		return filter;
+//	}
 }

@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="true" scanPeriod="30 seconds">
+<configuration  debug="true" scan="true" scanPeriod="30 seconds">
 	<include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+	<appender name="TRACE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>logs/trace.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/trace.log.%i</fileNamePattern>
+		</rollingPolicy>
+		<triggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>10MB</MaxFileSize>
+		</triggeringPolicy>
+	</appender>
+	
+	<logger name="no.lundesgaard.sudokufeud.api.controller.GameController" level="TRACE">
+		<appender-ref ref="TRACE_FILE"/>
+	</logger>
 
 </configuration>

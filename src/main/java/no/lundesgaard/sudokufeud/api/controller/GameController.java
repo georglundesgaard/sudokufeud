@@ -1,5 +1,6 @@
 package no.lundesgaard.sudokufeud.api.controller;
 
+import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.maxBy;
 import static java.util.stream.Collectors.toList;
@@ -61,11 +62,36 @@ public class GameController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<JsonGame>> getGames(@AuthenticationPrincipal String userId) {
+		ResponseEntity<List<JsonGame>> response;
 		List<Game> games = gameService.getGames(userId);
 		if (games.size() == 0) {
-			return emptyListResponse();
+			response = emptyListResponse();
+		} else {
+			response = listResponse(userId, games);
 		}
-		return listResponse(userId, games);
+		traceLog(RequestMethod.GET ,GAMES_PATH, userId, null, response);
+		return response;
+	}
+
+	private void traceLog(RequestMethod method, String path, String userId, Object body, ResponseEntity<?> response) {
+		if (!LOGGER.isTraceEnabled()) {
+			return;
+		}
+
+		String requestBody = valueOf(body);
+		String requestMessage = "Request:\n"
+				+ "Method  : " + method + "\n"
+				+ "Path    : " + path + "\n"
+				+ "User id : " + userId + "\n"
+				+ "Body    : " + requestBody.substring(0, requestBody.length() >= 50 ? 50 : requestBody.length());
+		LOGGER.trace(requestMessage);
+
+		String responseBody = valueOf(response.getBody());
+		String responseMessage = "Response:\n"
+				+ "Status  : " + response.getStatusCode() + "\n"
+				+ "Headers : " + response.getHeaders() + "\n"
+				+ "Body    : " + responseBody.substring(0, responseBody.length() >= 50 ? 50 : responseBody.length());
+		LOGGER.trace(responseMessage);
 	}
 
 	private ResponseEntity<List<JsonGame>> listResponse(String userId, List<Game> games) {
@@ -98,7 +124,9 @@ public class GameController {
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		httpHeaders.setLastModified(game.getLastModified().getTime());
 		JsonGame jsonGame = new JsonGameMapper(userId).from(game);
-		return new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
+		ResponseEntity<JsonGame> response = new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
+		traceLog(RequestMethod.GET, GAME_PATH, userId, null, response);
+		return response;
 	}
 
 	@RequestMapping(value = GAME_PATH, method = RequestMethod.PUT)
@@ -112,10 +140,14 @@ public class GameController {
 			HttpHeaders httpHeaders = new HttpHeaders();
 			httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 			JsonGame jsonGame = new JsonGameMapper(userId).from(game);
-			return new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
+			ResponseEntity<JsonGame> response = new ResponseEntity<>(jsonGame, httpHeaders, HttpStatus.OK);
+			traceLog(RequestMethod.PUT, GAME_PATH, userId, jsonGameInvitation, response);
+			return response;
 		} else {
 			gameService.declineInvitation(userId, gameId);
-			return new ResponseEntity<>(HttpStatus.OK);
+			ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
+			traceLog(RequestMethod.PUT, GAME_PATH, userId, jsonGameInvitation, response);
+			return response;
 		}
 	}
 
@@ -150,7 +182,9 @@ public class GameController {
 		URI roundLocation = uriComponentsBuilder.path(ROUND_PATH).buildAndExpand(roundId).toUri();
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setLocation(roundLocation);
-		return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
+		ResponseEntity<Object> response = new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
+		traceLog(RequestMethod.POST, ROUNDS_PATH, userId, jsonRound, response);
+		return response;
 	}
 
 	@RequestMapping(value = ROUNDS_PATH, method = RequestMethod.GET)
